@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src/main/java"/>
-	<classpathentry kind="src" path="src/main/resources"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry exported="true" kind="lib" path="/Users/PrithviGudapati/.gradle/caches/modules-2/files-2.1/it.swim/swim-api-java/0.1.20170110233031/55d251e22f36f7d85e5e86e6db56f2f3f3f2598e/swim-api-java-0.1.20170110233031.jar" sourcepath="/Users/PrithviGudapati/.gradle/caches/modules-2/files-2.1/it.swim/swim-api-java/0.1.20170110233031/4144487daa4fcb8ccecae4d660ce728de0fca148/swim-api-java-0.1.20170110233031-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="/Users/PrithviGudapati/Swim/chat/lib/swim-platform-java-0.1.1-SNAPSHOT.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
