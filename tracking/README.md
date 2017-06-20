@@ -6,6 +6,6 @@ Compile and run the Tracking App
 ```sh
 Gradle Clean Build Run
 ```
-Now open up sf-muni.html in a browser to track the buses in the sf-muni agency.
-Open ucsf.html as well in a browser to track the buses in the ucsf agency.
+Now open up `sf-muni.html` in a browser to track the buses in the sf-muni agency.
+Open `ucsf.html` as well in a browser to track the buses in the ucsf agency.
 
