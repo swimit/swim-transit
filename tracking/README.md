@@ -2,7 +2,7 @@
 Tracking app that tracks the buses in the sf-muni and ucsf agencies
 
 ## Getting Started
-Compile and run the Tracking App
+Compile and run the Tracking App using [Gradle](https://gradle.org/install)
 ```sh
 Gradle Clean Build Run
 ```
