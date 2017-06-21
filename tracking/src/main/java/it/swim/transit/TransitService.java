@@ -1,12 +1,8 @@
 package it.swim.transit;
 
-import it.swim.api.JoinValueLane;
+import it.swim.api.*;
 import it.swim.recon.Value;
 import it.swim.util.Uri;
-import it.swim.api.AbstractService;
-import it.swim.api.SwimLane;
-import it.swim.api.ValueLane;
-import it.swim.api.CommandLane;
 
 import java.util.Iterator;
 
@@ -18,6 +14,10 @@ public class TransitService extends AbstractService {
     @SwimLane("VehicleCounts")
     public JoinValueLane<Value, Integer> vehicleCounts = joinValueLane().valueClass(Integer.class)
             .didUpdate((Value key, Integer prevCount, Integer newCount) -> updateCounts());
+
+    @SwimLane("VehicleLocations")
+    public JoinMapLane<Value, String, Value> vehicleLocations = joinMapLane().keyClass(String.class)
+            .valueClass(Value.class);
 
     @SwimLane("agencies/add")
     public CommandLane<Value> agencyAdd = commandLane().valueClass(Value.class).onCommand((Value value) -> {

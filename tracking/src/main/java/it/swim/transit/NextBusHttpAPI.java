@@ -42,7 +42,38 @@ public class NextBusHttpAPI {
 		return null;
 	}
 
-	public Value[] getRoutes() {
+	public static Value[] getVehicleLocations(String ag) {
+		try {
+			URL url = new URL(String.format(
+					"http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag));
+			// URL url = new URL(
+			// String.format("http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=sf-muni&r=14&t=0"));
+			Document file = parse(url);
+			if (file == null) {
+				return null;
+			}
+			NodeList nodes = file.getElementsByTagName("vehicle");
+			Value[] vehicles = new Value[nodes.getLength()];
+			for (int i = 0; i < nodes.getLength(); i++) {
+				String id = ((Element) nodes.item(i)).getAttribute("id").replace("\"", "");
+				String routeTag = ((Element) nodes.item(i)).getAttribute("routeTag").replace("\"", "");
+				String dirId = ((Element) nodes.item(i)).getAttribute("dirTag").replace("\"", "");
+				String latitude = ((Element) nodes.item(i)).getAttribute("lat").replace("\"", "");
+				String longitude = ((Element) nodes.item(i)).getAttribute("lon").replace("\"", "");
+				String speed = ((Element) nodes.item(i)).getAttribute("speedKmHr").replace("\"", "");
+				String secsSinceReport = ((Element) nodes.item(i)).getAttribute("secsSinceReport").replace("\"", "");
+				vehicles[i] = Record.of(new Attr("vehicle"), new Slot("id", id), new Slot("routeId", routeTag),
+						new Slot("dirId", dirId), new Slot("latitude", latitude), new Slot("longitude", longitude),
+						new Slot("speed", speed), new Slot("secsSinceReport", secsSinceReport));
+			}
+			return vehicles;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/*public Value[] getRoutes() {
 		try {
 			URL url = new URL(
 					String.format("http://webservices.nextbus.com/service/publicXMLFeed?command=routeList&a=sf-muni"));
@@ -78,36 +109,5 @@ public class NextBusHttpAPI {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	public static Value[] getVehicleLocations(String ag) {
-		try {
-			URL url = new URL(String.format(
-					"http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag));
-			// URL url = new URL(
-			// String.format("http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=sf-muni&r=14&t=0"));
-			Document file = parse(url);
-			if (file == null) {
-				return null;
-			}
-			NodeList nodes = file.getElementsByTagName("vehicle");
-			Value[] vehicles = new Value[nodes.getLength()];
-			for (int i = 0; i < nodes.getLength(); i++) {
-				String id = ((Element) nodes.item(i)).getAttribute("id").replace("\"", "");
-				String routeTag = ((Element) nodes.item(i)).getAttribute("routeTag").replace("\"", "");
-				String dirId = ((Element) nodes.item(i)).getAttribute("dirTag").replace("\"", "");
-				String latitude = ((Element) nodes.item(i)).getAttribute("lat").replace("\"", "");
-				String longitude = ((Element) nodes.item(i)).getAttribute("lon").replace("\"", "");
-				String speed = ((Element) nodes.item(i)).getAttribute("speedKmHr").replace("\"", "");
-				String secsSinceReport = ((Element) nodes.item(i)).getAttribute("secsSinceReport").replace("\"", "");
-				vehicles[i] = Record.of(new Attr("vehicle"), new Slot("id", id), new Slot("routeId", routeTag),
-						new Slot("dirId", dirId), new Slot("latitude", latitude), new Slot("longitude", longitude),
-						new Slot("speed", speed), new Slot("secsSinceReport", secsSinceReport));
-			}
-			return vehicles;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+	}*/
 }
