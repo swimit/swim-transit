@@ -16,10 +16,10 @@ public class AgencyService extends AbstractService {
 	@SwimLane("agency/vehicles")
 	public MapLane<String, Value> vehiclesMap = mapLane().keyClass(String.class).valueClass(Value.class);
 
-	@SwimLane("agency/count")
+    @SwimLane("agency/count")
 	public ValueLane<Integer> vehiclesCount = valueLane().valueClass(Integer.class);
 
-    @SwimLane("agency/speed")
+	@SwimLane("agency/speed")
     public ValueLane<Float> vehiclesSpeed = valueLane().valueClass(Float.class);
 
 	@SwimLane("agency/set")

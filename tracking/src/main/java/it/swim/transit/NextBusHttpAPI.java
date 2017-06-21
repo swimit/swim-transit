@@ -45,7 +45,7 @@ public class NextBusHttpAPI {
 	public static Value[] getVehicleLocations(String ag) {
 		try {
 			URL url = new URL(String.format(
-					"http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag));
+                    "http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag));
 			Document file = parse(url);
 			if (file == null) {
 				return null;
