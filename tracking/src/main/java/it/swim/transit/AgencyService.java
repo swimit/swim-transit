@@ -16,8 +16,11 @@ public class AgencyService extends AbstractService {
 	@SwimLane("agency/vehicles")
 	public MapLane<String, Value> vehiclesMap = mapLane().keyClass(String.class).valueClass(Value.class);
 
-	@SwimLane("agency/info")
-	public ValueLane<Integer> vehiclesInfo = valueLane().valueClass(Integer.class);
+	@SwimLane("agency/count")
+	public ValueLane<Integer> vehiclesCount = valueLane().valueClass(Integer.class);
+
+    @SwimLane("agency/speed")
+    public ValueLane<Float> vehiclesSpeed = valueLane().valueClass(Float.class);
 
 	@SwimLane("agency/set")
 	public CommandLane<String> agencySet = commandLane().valueClass(String.class).onCommand((String info) -> agency = info);
@@ -25,10 +28,13 @@ public class AgencyService extends AbstractService {
 	private void checkVehicleLocations() {
 		Value[] vehicles = NextBusHttpAPI.getVehicleLocations(agency);
 		vehiclesMap.clear();
+		int speedSum = 0;
 		for (int i = 0; i < vehicles.length; i++) {
 			vehiclesMap.put(vehicles[i].get("id").stringValue(), vehicles[i]);
+			speedSum+= Integer.parseInt(vehicles[i].get("speed").stringValue());
 		}
-		vehiclesInfo.set(vehiclesMap.size());
+		vehiclesCount.set(vehiclesMap.size());
+		vehiclesSpeed.set(((float) speedSum)/vehiclesMap.size());
 		scheduleCheckVehicleLocations();
 	}
 

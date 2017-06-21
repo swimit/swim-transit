@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>SF-Muni Tracking App</title>
+    <title>Tracking App Aggregation</title>
     <link rel="shortcut icon" href="https://www.swim-iot.com/hubfs/swim_favicon_16x@2x.png?t=1497901337094">
     <style>
       html, body {
@@ -19,22 +19,22 @@
         padding: 10px;
         margin: 10px;
         border: 3px solid #000;
-        height: 90px;
+        height: 70px;
         width: 170px;
       }
     </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <div id="legend"><h3>Agency Stats</h3></div>
-    <script src="https://repo.swim.it/swim/recon-0.3.9.js"></script>
-    <script src="https://repo.swim.it/swim/swim-client-0.4.6.js"></script>
-    <script>
+</head>
+<body>
+<div id="map"></div>
+<div id="legend"><h3>Region Stats</h3></div>
+<script src="https://repo.swim.it/swim/recon-0.3.9.js"></script>
+<script src="https://repo.swim.it/swim/swim-client-0.4.6.js"></script>
+<script>
       var lat = 37.7521;
       var lon = -122.4411;
       var map;
       var host = swim.host('ws://localhost:9090');
-      var organization = host.node('agency/sf-muni')
+      var region = host.node('transit/norcal');
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: lat, lng: lon},
@@ -45,12 +45,9 @@
         var total = document.createElement('div');
         total.innerHTML = "<p>Total Number of Vehicles: </p>";
         legend.appendChild(total);
-        var average = document.createElement('div');
-        average.innerHTML = "<p>Average Speed (Km/Hr): </p>";
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
-        legend.appendChild(average);
-                var counts = organization.downlink()
-        	.lane('agency/count')
+        var counts = region.downlink()
+        	.lane('counts')
         	.onEvent(function (event) {
         		var count = event.body;
         		console.log(recon.stringify(count));
@@ -58,17 +55,8 @@
                 legend.appendChild(total);
         		})
         	.sync();
-        var speed = organization.downlink()
-        	.lane('agency/speed')
-        	.onEvent(function (event) {
-        		var speed = event.body;
-        		console.log(recon.stringify(speed));
-        		average.innerHTML = "<p>Average Speed (Km/Hr): " + Number(recon.stringify(speed)).toFixed(2) +"</p>";
-                legend.appendChild(average);
-        		})
-        	.sync();
-        var devices = organization.downlink()
-          .lane('agency/vehicles')
+        var devices = region.downlink()
+          .lane('locations')
           .onEvent(function (event) {
             var device = event.body;
             if (recon.tag(device) === '@remove') {
@@ -82,7 +70,6 @@
             }
             if (this.markers[device.id]) {
               this.markers[device.id].setPosition({lat: lat, lng: lng});
-              google.maps.event.clearInstanceListeners(this.markers[device.id]);
             } else {
               this.markers[device.id] = new google.maps.Marker({
                 map: map,
@@ -90,19 +77,18 @@
                 title: device.deviceName,
                 icon: 'http://city.swim.it/images/bus-primary-tiny.svg'
               });
-            }
-            var infowindow = new google.maps.InfoWindow({
-              	content: "Vehicle: " + device.id + " Agency: " + device.agency + " Route: " +device.routeId + " Speed: " + device.speed + " Km/Hr"
-              })
+              var infowindow = new google.maps.InfoWindow({
+                content: "Vehicle: " + device.id + " Agency: " + device.agency + " Route: " +device.routeId + " Speed: " + device.speed + " Km/Hr"              })
               google.maps.event.addListener(this.markers[device.id], 'click', function() {
               	infowindow.open(map, this);
               });
+            }
           })
           .keepAlive(true)
           .syncMap();
         devices.markers = {};
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI-Gz_lh3-rKXFwlpElD7pInA60U-iK0c&libraries=visualization&callback=initMap"></script>
-  </body>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI-Gz_lh3-rKXFwlpElD7pInA60U-iK0c&libraries=visualization&callback=initMap"></script>
+</body>
 </html>

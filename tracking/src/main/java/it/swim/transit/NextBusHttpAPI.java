@@ -46,8 +46,6 @@ public class NextBusHttpAPI {
 		try {
 			URL url = new URL(String.format(
 					"http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag));
-			// URL url = new URL(
-			// String.format("http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=sf-muni&r=14&t=0"));
 			Document file = parse(url);
 			if (file == null) {
 				return null;
@@ -64,7 +62,8 @@ public class NextBusHttpAPI {
 				String secsSinceReport = ((Element) nodes.item(i)).getAttribute("secsSinceReport").replace("\"", "");
 				vehicles[i] = Record.of(new Attr("vehicle"), new Slot("id", id), new Slot("routeId", routeTag),
 						new Slot("dirId", dirId), new Slot("latitude", latitude), new Slot("longitude", longitude),
-						new Slot("speed", speed), new Slot("secsSinceReport", secsSinceReport));
+						new Slot("speed", speed), new Slot("secsSinceReport", secsSinceReport),
+                        new Slot("agency", ag));
 			}
 			return vehicles;
 		} catch (MalformedURLException e) {
