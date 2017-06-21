@@ -20,7 +20,7 @@ public class AgencyService extends AbstractService {
 	public ValueLane<Integer> vehiclesInfo = valueLane().valueClass(Integer.class);
 
 	@SwimLane("agency/set")
-	public CommandLane<String> agencySet = commandLane().valueClass(String.class).onCommand(info -> agency = info);
+	public CommandLane<String> agencySet = commandLane().valueClass(String.class).onCommand((String info) -> agency = info);
 
 	private void checkVehicleLocations() {
 		Value[] vehicles = NextBusHttpAPI.getVehicleLocations(agency);
