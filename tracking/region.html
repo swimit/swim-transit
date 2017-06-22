@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Tracking App Aggregation</title>
+    <title>Bay Area Tracking App</title>
     <link rel="shortcut icon" href="https://www.swim-iot.com/hubfs/swim_favicon_16x@2x.png?t=1497901337094">
     <style>
       html, body {
@@ -30,15 +30,15 @@
 <script src="https://repo.swim.it/swim/recon-0.3.9.js"></script>
 <script src="https://repo.swim.it/swim/swim-client-0.4.6.js"></script>
 <script>
-      var lat = 37.7521;
-      var lon = -122.4411;
+      var lat = 37.7320518;
+      var lon = -122.3;
       var map;
-      var host = swim.host('ws://localhost:9090');
-      var region = host.node('transit/norcal');
+      var host = swim.host('ws://localhost:8090');
+      var region = host.node('transit/bayarea');
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: lat, lng: lon},
-          zoom: 12,
+          zoom: 10,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         });
         var legend = document.getElementById('legend');

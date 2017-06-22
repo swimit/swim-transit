@@ -48,6 +48,6 @@ public class AgencyService extends AbstractService {
         System.out.println("Started Service" + nodeUri());
         scheduleCheckVehicleLocations();
         Value config = Record.of(new Slot("key", this.nodeUri().toUri()), new Slot("node", this.nodeUri().toUri()));
-        context.command("/transit/norcal", "agencies/add", config);
+        context.command("/transit/bayarea", "agencies/add", config);
     }
 }

@@ -49,6 +49,7 @@ public class TransitService extends AbstractService {
     }
 
 
+
     public void didStart() {
         locations.clear();
         System.out.println("Started Service" + nodeUri());

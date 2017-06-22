@@ -38,7 +38,7 @@ public class TransitPlane extends AbstractPlane {
         server.run(); // blocks until termination
 
         planeContext.command("/agency/sf-muni", "agency/set", Value.of("sf-muni"));
-        planeContext.command("/agency/ucsf", "agency/set", Value.of("ucsf"));
+        planeContext.command("/agency/actransit", "agency/set", Value.of("actransit"));
     }
 
     private static Value loadReconConfig(String[] args) throws IOException {
