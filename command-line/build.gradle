@@ -2,12 +2,9 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'application'
 
-
 group = 'it.swim'
 description = "Swim Command Line"
 sourceCompatibility = 1.8
-
-
 
 configurations.all {
     resolutionStrategy {
@@ -22,7 +19,6 @@ dependencies {
 compileJava {
     options.compilerArgs += ['-Xlint']
 }
-
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -45,8 +41,6 @@ task sourcesJar(type: Jar) {
 artifacts {
     archives javadocJar, sourcesJar
 }
-
-
 
 mainClassName = 'it.swim.commandline.Main'
 

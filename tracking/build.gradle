@@ -1,48 +1,16 @@
-import org.apache.tools.ant.filters.*
-
-buildscript {
-    repositories {
-      maven { url 'https://plugins.gradle.org/m2/' }
-    }
-  dependencies {
-    classpath 'com.netflix.nebula:gradle-ospackage-plugin:4.3.0'
-  }
-  if (!project.hasProperty('local')) {
-    dependencies {
-      classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1'
-    }
-  }
-}
-
 apply plugin: 'java'
 apply plugin: 'application'
-apply plugin: 'nebula.ospackage-application'
 apply plugin: 'maven'
-apply plugin: 'signing'
-if (!project.hasProperty('local')) {
-  apply plugin: 'jacoco'
-  apply plugin: 'org.sonarqube'
-}
 
 group = 'it.swim'
 description = "Swim transit space"
-version = project.property("application.version")
 sourceCompatibility = 1.8
-
-repositories {
-  maven { url "https://repo.swim.it/swim-snapshots/" }
-  maven { url "https://repo.swim.it/swim-releases/" }
-  maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-  maven { url 'https://oss.sonatype.org/content/repositories/releases' }
-  mavenCentral()
-}
 
 configurations.all {
   resolutionStrategy {
     cacheChangingModulesFor 3600, 'seconds'
   }
 }
-
 
 dependencies {
  compile fileTree(dir: 'lib', include: ['*.jar'])}
@@ -58,22 +26,6 @@ compileJava {
 compileTestJava {
   options.compilerArgs += ['-Xlint']
 }
-
-test {
-  useTestNG()
-
-  scanForTestClasses = false
-  include '**/*Spec.class'
-
-  testLogging {
-    events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
-    exceptionFormat 'full'
-    displayGranularity = 4
-  }
-
-  outputs.upToDateWhen { false }
-}
-
 
 javadoc {
   options.charSet = 'UTF-8'
@@ -93,18 +45,6 @@ artifacts {
   archives javadocJar, sourcesJar
 }
 
-if (!project.hasProperty('local')) {
-  sonarqube {
-    def suffix = (version.endsWith('SNAPSHOT') ? '-snapshots' : '')
-
-    properties {
-      property 'sonar.projectName', "${project.name}${suffix}"
-      property 'sonar.projectKey', "${project.name}${suffix}"
-      property 'sonar.host.url', project.property('sonarHost')
-    }
-  }
-}
-
 mainClassName = 'it.swim.transit.TransitPlane'
 
 // gradle -Pconfig=swim.recon runMain
@@ -120,91 +60,3 @@ if (project.hasProperty('mainClassName')) {
   }
 }
 
-ospackage {
-  release '1'
-  prefix '/opt/swim-transit-space'
-}
-
-task packageDeb(type: Deb) {
-  maintainer = 'ajay@swim.it'
-
-  configurationFile("/etc/sysconfig/${project.name}")
-  preInstall "addgroup --quiet --system ${project.name}"
-  preInstall "adduser --quiet --system --ingroup ${project.name} --no-create-home --disabled-password ${project.name}"
-  postInstall "systemctl preset ${project.name} > /dev/null 2>&1"
-  postInstall "systemctl start ${project.name} > /dev/null 2>&1"
-  preUninstall  "systemctl disable ${project.name} > /dev/null 2>&1"
-  preUninstall  "systemctl stop ${project.name} > /dev/null 2>&1"
-  postUninstall "systemctl daemon-reload > /dev/null 2>&1"
-
-  from('pkg') {
-    into '/etc/systemd/system'
-    include '*.service'
-    addParentDirs false
-    expand project.properties
-    user 'root'
-    permissionGroup 'root'
-    fileMode = 0644
-  }
-
-  from('pkg') {
-    into '/etc/sysconfig'
-    include "${project.name}"
-    user 'root'
-    permissionGroup 'root'
-    fileMode = 0644
-    fileType CONFIG | NOREPLACE
-  }
-}
-
-if (project.hasProperty('artifactoryUserName') && project.hasProperty('artifactoryUserPassword')) {
-  signing {
-    // FIXME: sign in time
-    //required { !version.endsWith("SNAPSHOT") && gradle.taskGraph.hasTask("uploadArchives") }
-    required false
-    sign configurations.archives
-  }
-
-  uploadArchives {
-    repositories {
-      mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-        repository(url: "https://repo.swim.it/swim-releases/") {
-          authentication(userName: artifactoryUserName, password: artifactoryUserPassword)
-        }
-
-        snapshotRepository(url: "https://repo.swim.it/swim-snapshots/") {
-          authentication(userName: artifactoryUserName, password: artifactoryUserPassword)
-        }
-
-        pom.project {
-          name "${project.name}"
-          packaging 'jar'
-          description "${description}"
-          url "https://github.com/swimit/${project.name}"
-
-          scm {
-            connection "scm:git:git@github.com:swimit/${project.name}.git"
-            url "git@github.com:swimit/${project.name}.git"
-          }
-
-          licenses {
-            license {
-              name 'The Apache License, Version 2.0'
-              url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            }
-          }
-
-          developers {
-            developer {
-              id 'prithg98'
-              name 'Prithvi Gudapati'
-              email 'prithvi@swim.it'
-            }
-          }
-        }
-      }
-    }
-  }
-}
