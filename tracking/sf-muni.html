@@ -49,7 +49,7 @@
         average.innerHTML = "<p>Average Speed (Km/Hr): </p>";
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
         legend.appendChild(average);
-                var counts = organization.downlink()
+        var counts = organization.downlink()
         	.lane('agency/count')
         	.onEvent(function (event) {
         		var count = event.body;
