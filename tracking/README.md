@@ -7,7 +7,7 @@ The goal was to have two different html pages that can display the buses in each
 statistics and to also have a third html page that displays the buses from both agencies and aggregates the statistics.
 The general outline of how we were going to approach developing this application was to write an `Agency Service`
 for the two agencies and to also write a higher level swim service, which we called the `Transit Service`, that
-linked to both `Agency Services`. The data regarding the buses was obtained from the [NextBus API](http://webservices.nextbus.com/).
+linked to both `Agency Services`. The data bus data was obtained from the [NextBus API](http://webservices.nextbus.com/).
 
 ## Getting Started
 If you do not have Gradle installed you can find an installation guide [here](https://gradle.org/install).
@@ -69,9 +69,9 @@ Creates a `CommandLane`, which when a command is sent to the Uri `agency/set` se
 Here, we define two methods that allow us to get the locations of the vehicles for this agency every 10 seconds
 using the NextBus API and then update the `MapLane` accordingly by first clearing everything present using `clear` and
 adding all the vehicles returned by `getVehicleLocations` using `put`. We also update the total number of vehicles and
-the average speed of the vehicles by using `set`. This method makes use of `Timers` in Swim. 'setTimer' only sets a
+the average speed of the vehicles by using `set`. This method makes use of `Timers` in Swim. `setTimer` only sets a
 timer once, so in order to make the method `checkVehicleLocations` run every 10 seconds we call
-`scheduleCheckVehicleLocations`.
+`scheduleCheckVehicleLocations` at the end of it.
 
 ```java
 @Override
@@ -83,10 +83,7 @@ timer once, so in order to make the method `checkVehicleLocations` run every 10 
         context.command("/transit/bayarea", "agencies/add", config);
     }
 ```
-The `didStart` callback above runs when the AgencyService first starts and lets the TransitService at node
-`/transit/bayarea` know that it exists and that it should have its `JoinValueLane` downlink to this AgencyService's
-value lane. Furthermore, this creates the TransitService if has not already been instantiated.
-We will explain this further when looking at `TransitService.java`.
+The `didStart` callback above runs when the AgencyService first starts. This method calls `scheduleCheckVehicleLocations` to start populating the lanes and lets the TransitService at node `/transit/bayarea` know that it exists and that it should have its `JoinValueLane` downlink to this AgencyService's value lane. Furthermore, this creates the TransitService if has not already been instantiated.We will explain this further when looking at `TransitService.java`.
 
 ### TransitService.java
 
@@ -115,7 +112,7 @@ Creates a `JoinValueLane`, which maintains links to the `agency/count` lane of a
                   (String key, Value newEntry, Value oldEntry) -> locations.put(key, newEntry));
 ```
 Creates a `JoinMapLane`, which maintains links to the `agency/vehicles` lane of agencies and when that lane updates
-`locations`.
+`locations` using `put`.
 
 ```java
 @SwimLane("agencies/add")
@@ -126,7 +123,7 @@ Creates a `JoinMapLane`, which maintains links to the `agency/vehicles` lane of 
             .laneUri("agency/vehicles").open();
   });
 ```
-Creates the `CommandLane` that we were talking about earlier that when it receives a command gets the 'key' and the
+Creates the `CommandLane` that we were talking about earlier that on command gets the 'key' and the
 'node' from the body of the command and then has `vehicleCounts` downlink to the `agency/count` lane of the
 AgencyService at the node and `vehicleLocations` downlink to the `agency/vehicles` lane of the AgencyService.
 
@@ -141,7 +138,7 @@ AgencyService at the node and `vehicleLocations` downlink to the `agency/vehicle
     counts.set(vCounts);
   }
 ```
-`updateCounts` is called when `VehicleCounts` receives an update to the counts of one the agencies it is linked to.
+`updateCounts` is called when `VehicleCounts` receives an update to the counts of one of the agencies it is linked to.
 `updateCounts` just recalculates the sum of all the `VehicleCounts` when this occurs and sets `count` to that value.
 
 ### TransitPlane.java
@@ -156,7 +153,7 @@ AgencyService at the node and `vehicleLocations` downlink to the `agency/vehicle
  final ServiceType<?> agencyService = serviceClass(AgencyService.class);
  ```
 In `TransitPlane.java`, we define the services that will be used. The `Transit Services` will have URIs, which start
-with "/transit/", while the `Agency Services` will have URIs, which start with "/agency/".
+with `/transit/`, while the `Agency Services` will have URIs, which start with `/agency/`.
 
 ```java
 public static void main(String[] args) throws IOException {
@@ -183,8 +180,8 @@ explain in further detail later. We then create an instance of the `Plane` and s
 planeContext.command("/agency/sf-muni", "agency/set", Value.of("sf-muni"));
 planeContext.command("/agency/actransit", "agency/set", Value.of("actransit"));
 ```
-Are important because here we instantiate two `Agency Services` by sending a command to them that sets
-the agencies that they will be display.
+These lines are fairly important because here we instantiate two `Agency Services` by sending a command to them that sets
+the agencies that they will be display. Note: services get instantiated lazily. 
 
 ```java
  private static Value loadReconConfig(String[] args) throws IOException {
@@ -218,7 +215,7 @@ the agencies that they will be display.
     return configValue;
   }
 ```
-The `loadReconConfig` method is fairly boilerplatey. The important things to note are that it loads the configuration
+The `loadReconConfig` method is fairly boilerplatey. The important things to note here are that it loads the configuration
 from the file `/transit-space.recon`, which we will look at next.
 
 ### transit-space.recon
@@ -239,9 +236,9 @@ from the file `/transit-space.recon`, which we will look at next.
   }
 }
 ```
-This recon configuration file can be configured however you want. Here, we our plane is in
+This recon configuration file can be configured to whatever you want. Here, our plane is in
 `it.swim.transit.TransitPlane` and we store data in the repository `/tmp/swim/transit`. We also tell the application
-to run on port 8090.
+to run on port `8090`.
 
 Thats all the java swim code.
 
