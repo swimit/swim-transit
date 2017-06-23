@@ -1,7 +1,5 @@
 package it.swim.commandline;
 
-//import com.google.common.collect.ImmutableMap;
-
 import it.swim.client.SwimClient;
 import it.swim.util.Uri;
 
@@ -9,11 +7,9 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static it.swim.util.Uri.parse;
-import static java.lang.String.join;
 import static java.util.Collections.emptyList;
 
 public class Main {
@@ -62,17 +58,6 @@ public class Main {
     }
   }
 
-    /*private static final Map<String, Option> OPTIONS = new ImmutableMap.Builder<String, Option>()
-            .put(HELP, new Option(HELP, "-" + HELP.substring(0, 1) + " | --" + HELP,
-                    "display help message"))
-            .build();
-    private static final Map<String, Command> COMMANDS = new ImmutableMap.Builder<String, Command>()
-            .put(LINK, new Command(LINK, LINK + " to a given host, node and lane ",
-                    LINK + " [host] [node] [lane]", false, 3))
-            .put(SYNC, new Command(SYNC, SYNC + " to a given host, node and lane ",
-                    SYNC + " [host] [node] [lane]", true, 3))
-            .build();*/
-
   public static void main(final String[] args) throws InterruptedException, IOException {
     List<String> commandLineArgs = new ArrayList<String>();
     boolean help = false;
@@ -84,15 +69,15 @@ public class Main {
         commandLineArgs.add(args[i]);
       }
     }
+
     if (help) {
       display(getHelp());
     } else {
-
       if (commandLineArgs.isEmpty()) {
         displayError(getHelp("no command specified"));
       } else {
         if (!commandLineArgs.get(0).equalsIgnoreCase("sync") &&
-                !commandLineArgs.get(1).equalsIgnoreCase("link")) {
+                !commandLineArgs.get(0).equalsIgnoreCase("link")) {
           displayError(getHelp("invalid command"));
         } else if (commandLineArgs.size() != 4) {
           displayError(getHelp("invalid command arguments"));
@@ -112,8 +97,6 @@ public class Main {
                     .hostUri(host)
                     .nodeUri(node)
                     .laneUri(lane)
-                    .keepLinked(true)
-                    .keepSynced(true)
                     .onEvent(event -> {
                       String msg = event.toRecon();
                       System.out.println(msg);

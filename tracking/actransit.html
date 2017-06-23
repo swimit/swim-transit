@@ -27,13 +27,13 @@
   <body>
     <div id="map"></div>
     <div id="legend"><h3>Agency Stats</h3></div>
-    <script src="https://repo.swim.it/swim/recon-0.3.9.js"></script>
-    <script src="https://repo.swim.it/swim/swim-client-0.4.6.js"></script>
+    <script src="lib/recon.js"></script>
+    <script src="lib/swim-client.js"></script>
     <script>
       var lat = 37.7320518;
       var lon = -122.1499481;
       var map;
-      var host = swim.host('ws://localhost:8090');
+      var host = Swim.host('ws://localhost:8090');
       var organization = host.node('agency/actransit')
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -49,30 +49,28 @@
         average.innerHTML = "<p>Average Speed (Km/Hr): </p>";
         map.controls[google.maps.ControlPosition.RIGHT_TOP].push(legend);
         legend.appendChild(average);
-        var counts = organization.downlink()
+        var counts = organization.downlinkValue()
         	.lane('agency/count')
         	.onEvent(function (event) {
-        		var count = event.body;
-        		console.log(recon.stringify(count));
-        		total.innerHTML = "<p>Total Number of Vehicles: " + recon.stringify(count) +"</p>";
+        		var count = event;
+        		total.innerHTML = "<p>Total Number of Vehicles: " + Recon.stringify(count) +"</p>";
                 legend.appendChild(total);
         		})
-        	.sync();
-        var speed = organization.downlink()
+        	.open()
+        var speed = organization.downlinkValue()
         	.lane('agency/speed')
         	.onEvent(function (event) {
-        		var speed = event.body;
-        		console.log(recon.stringify(speed));
-        		average.innerHTML = "<p>Average Speed (Km/Hr): " + Number(recon.stringify(speed)).toFixed(2) +"</p>";
+        		var speed = event;
+        		average.innerHTML = "<p>Average Speed (Km/Hr): " + Number(Recon.stringify(speed)).toFixed(2) +"</p>";
                 legend.appendChild(average);
         		})
-        	.sync();
-        var devices = organization.downlink()
+        	.open()
+        var devices = organization.downlinkMap()
           .lane('agency/vehicles')
           .onEvent(function (event) {
-            var device = event.body;
-            if (recon.tag(device) === '@remove') {
-              this.markers[device.id].setMap(null);
+            var device = event
+            if (Recon.tag(device) === '@remove') {
+              devices.markers[device.id].setMap(null);
               return;
             }
             var lat = Number(device.latitude);
@@ -80,25 +78,25 @@
             if (!lat || !lng) {
               return;
             }
-            if (this.markers[device.id]) {
-              this.markers[device.id].setPosition({lat: lat, lng: lng});
+            if (devices.markers[device.id]) {
+              devices.markers[device.id].setPosition({lat: lat, lng: lng});
+              google.maps.event.clearInstanceListeners(devices.markers[device.id]);
             } else {
-              this.markers[device.id] = new google.maps.Marker({
+              devices.markers[device.id] = new google.maps.Marker({
                 map: map,
                 position: {lat: lat, lng: lng},
                 title: device.deviceName,
                 icon: 'http://city.swim.it/images/bus-primary-tiny.svg'
               });
-              var infowindow = new google.maps.InfoWindow({
+            }
+            var infowindow = new google.maps.InfoWindow({
               	content: "Vehicle: " + device.id + " Agency: " + device.agency + " Route: " +device.routeId + " Speed: " + device.speed + " Km/Hr"
               })
-              google.maps.event.addListener(this.markers[device.id], 'click', function() {
+              google.maps.event.addListener(devices.markers[device.id], 'click', function() {
               	infowindow.open(map, this);
               });
-            }
           })
-          .keepAlive(true)
-          .syncMap();
+          .open()
         devices.markers = {};
       }
     </script>

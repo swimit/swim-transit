@@ -71,42 +71,4 @@ public class NextBusHttpAPI {
     }
     return null;
   }
-
-	/*public Value[] getRoutes() {
-        try {
-			URL url = new URL(
-					String.format("http://webservices.nextbus.com/service/publicXMLFeed?command=routeList&a=sf-muni"));
-			Document file = parse(url);
-			if (file == null) {
-				return null;
-			}
-			NodeList nodes = file.getElementsByTagName("route");
-			Value[] routes = new Value[nodes.getLength()];
-			for (int i = 0; i < nodes.getLength(); i++) {
-				String tag = ((Element) nodes.item(i)).getAttribute("tag").replace("\"", "");
-				String title = ((Element) nodes.item(i)).getAttribute("title").replace("\"", "");
-				routes[i] = Record.of(new Attr("route"), new Slot("id", tag), new Slot("title", title));
-			}
-			return routes;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	private Value[] getRouteConfig(String routeId) {
-		try {
-			URL url = new URL(String.format(
-					"http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=sf-muni&r=%s",
-					routeId));
-			Document file = parse(url);
-			if (file == null) {
-				return null;
-			}
-
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}*/
 }
