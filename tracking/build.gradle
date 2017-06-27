@@ -2,6 +2,10 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven'
 
+repositories {
+  mavenCentral()
+}
+
 group = 'it.swim'
 description = "Swim transit space"
 sourceCompatibility = 1.8
@@ -13,7 +17,8 @@ configurations.all {
 }
 
 dependencies {
- compile fileTree(dir: 'lib', include: ['*.jar'])}
+ compile fileTree(dir: 'lib', include: ['*.jar'])
+  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: '9.4.6.v20170531' }
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'

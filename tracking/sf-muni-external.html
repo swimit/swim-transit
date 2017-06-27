@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
-    <title>AC Transit Tracking App</title>
+    <title>SF-Muni Tracking App</title>
     <link rel="shortcut icon" href="https://www.swim-iot.com/hubfs/swim_favicon_16x@2x.png?t=1497901337094">
     <style>
       html, body {
@@ -14,7 +14,7 @@
         height: 100%;
       }
       #legend {
-        font-family: Arial, sans-serif;
+        font-family: Arial;
         background: #fff;
         padding: 10px;
         margin: 10px;
@@ -23,22 +23,22 @@
         width: 170px;
       }
     </style>
-  </head>
-  <body>
-    <div id="map"></div>
-    <div id="legend"><h3>Agency Stats</h3></div>
-    <script src="https://repo.swim.it/swim/recon-0.5.0.js"></script>
-    <script src="https://repo.swim.it/swim/swim-client-0.5.1.js"></script>
-    <script>
-      var lat = 37.7320518;
-      var lon = -122.1499481;
+</head>
+<body>
+<div id="map"></div>
+<div id="legend"><h3>Agency Stats</h3></div>
+<script src="https://repo.swim.it/swim/recon-0.5.0.js"></script>
+<script src="https://repo.swim.it/swim/swim-client-0.5.1.js"></script>
+<script>
+      var lat = 37.7521;
+      var lon = -122.4411;
       var map;
-      var host = Swim.host('ws://localhost:8090');
-      var organization = host.node('agency/actransit')
+      var host = Swim.host('ws://localhost:9090');
+      var organization = host.node('extAgency/sf-muni')
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: lat, lng: lon},
-          zoom: 10,
+          zoom: 12,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         });
         var legend = document.getElementById('legend');
@@ -100,6 +100,6 @@
         devices.markers = {};
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI-Gz_lh3-rKXFwlpElD7pInA60U-iK0c&libraries=visualization&callback=initMap"></script>
-  </body>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBI-Gz_lh3-rKXFwlpElD7pInA60U-iK0c&libraries=visualization&callback=initMap"></script>
+</body>
 </html>

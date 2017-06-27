@@ -44,7 +44,6 @@ public class AgencyService extends AbstractService {
 
   @Override
   public void didStart() {
-    vehiclesMap.clear();
     System.out.println("Started Service" + nodeUri());
     scheduleCheckVehicleLocations();
     Value config = Record.of(new Slot("key", this.nodeUri().toUri()), new Slot("node", this.nodeUri().toUri()));
