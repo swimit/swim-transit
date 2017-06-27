@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.jetty.websocket.api.Session;
 
-public class NextBusExternalClient extends WebSocketAdapter{
+public class NextBusExternalClient extends WebSocketAdapter {
 
   private static Document parse(URL url) {
     HttpURLConnection urlConnection;
@@ -44,7 +44,7 @@ public class NextBusExternalClient extends WebSocketAdapter{
     return null;
   }
 
-  public static String[] getVehicleLocations(String ag) {
+  public static String getVehicleLocations(String ag) {
     try {
       URL url = new URL(String.format(
               "http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag));
@@ -53,7 +53,7 @@ public class NextBusExternalClient extends WebSocketAdapter{
         return null;
       }
       NodeList nodes = file.getElementsByTagName("vehicle");
-      String[] vehicles = new String[nodes.getLength()];
+      String vehicles = "{";
       for (int i = 0; i < nodes.getLength(); i++) {
         String id = ((Element) nodes.item(i)).getAttribute("id").replace("\"", "");
         String routeTag = ((Element) nodes.item(i)).getAttribute("routeTag").replace("\"", "");
@@ -62,8 +62,8 @@ public class NextBusExternalClient extends WebSocketAdapter{
         String longitude = ((Element) nodes.item(i)).getAttribute("lon").replace("\"", "");
         String speed = ((Element) nodes.item(i)).getAttribute("speedKmHr").replace("\"", "");
         String secsSinceReport = ((Element) nodes.item(i)).getAttribute("secsSinceReport").replace("\"", "");
-        vehicles[i] = String.format("@Vehicle{id:\"%s\",routeId:\"%s\",dirId:\"%s\",latitude:\"%s\",longitude:\"%s\","
-                        + "speed:\"%s\",secsSinceReport:\"%s\", agency:\"%s\"}", id, routeTag, dirId, latitude,
+        vehicles += String.format("@Vehicle{id:\"%s\",routeId:\"%s\",dirId:\"%s\",latitude:\"%s\",longitude:\"%s\","
+                        + "speed:\"%s\",secsSinceReport:\"%s\", agency:\"%s\"},", id, routeTag, dirId, latitude,
                 longitude, speed, secsSinceReport, ag);
       }
       return vehicles;
@@ -74,14 +74,13 @@ public class NextBusExternalClient extends WebSocketAdapter{
   }
 
   public static void sendVehicleInfo(Session session, String node, String ag) {
-    String[] vehicles = getVehicleLocations(ag);
-    for (String vehicle : vehicles) {
-      String message = String.format("@command(node:\"%s\",lane:\"agency/input\")"+vehicle, node);
-      try {
-        session.getRemote().sendString(message);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    String vehicles = getVehicleLocations(ag);
+    String message = String.format("@command(node:\"%s\",lane:\"agency/input\")" +
+            vehicles.substring(0,vehicles.length() - 1) + '}', node);
+    try {
+      session.getRemote().sendString(message);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 
@@ -89,22 +88,22 @@ public class NextBusExternalClient extends WebSocketAdapter{
     ScheduledExecutorService run = Executors.newSingleThreadScheduledExecutor();
     run.scheduleAtFixedRate(() -> {
               sendVehicleInfo(session, "/extAgency/sf-muni", "sf-muni");
-              sendVehicleInfo(session, "/extAgency/actransit","actransit");
+              sendVehicleInfo(session, "/extAgency/actransit", "actransit");
             }
-            , 0, 10,TimeUnit.SECONDS);
+            , 0, 10, TimeUnit.SECONDS);
   }
-  
+
   public static void main(String[] args) throws IOException {
     WebSocketClient client = new WebSocketClient();
     try {
       client.start();
+      client.setAsyncWriteTimeout(-1000);
       NextBusExternalClient socket = new NextBusExternalClient();
       URI host = new URI("ws://localhost:9090");
       Future<Session> future = client.connect(socket, host);
       Session session = future.get();
       repeatSendVehicleInfo(session);
-    }
-    catch (Throwable e){
+    } catch (Throwable e) {
       e.printStackTrace();
     }
   }

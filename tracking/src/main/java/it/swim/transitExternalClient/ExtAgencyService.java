@@ -5,15 +5,15 @@ import it.swim.api.CommandLane;
 import it.swim.api.MapLane;
 import it.swim.api.SwimLane;
 import it.swim.api.ValueLane;
+import it.swim.recon.Item;
 import it.swim.recon.Record;
 import it.swim.recon.Slot;
-import it.swim.recon.Value;;
+import it.swim.recon.Value;
 
 public class ExtAgencyService extends AbstractService {
 
   @SwimLane("agency/vehicles")
-  public MapLane<String, Value> vehiclesMap = mapLane().keyClass(String.class).valueClass(Value.class)
-          .didUpdate((String key, Value newEntry, Value oldEntry) -> updateInfo(newEntry, oldEntry));
+  public MapLane<String, Value> vehiclesMap = mapLane().keyClass(String.class).valueClass(Value.class);
 
   @SwimLane("agency/count")
   public ValueLane<Integer> vehiclesCount = valueLane().valueClass(Integer.class);
@@ -22,25 +22,17 @@ public class ExtAgencyService extends AbstractService {
   public ValueLane<Float> vehiclesSpeed = valueLane().valueClass(Float.class);
 
   @SwimLane("agency/input")
-  public CommandLane<Value> input = commandLane().valueClass(Value.class).onCommand((Value value) -> add(value));
+  public CommandLane<Value> input = commandLane().valueClass(Value.class).onCommand((Value values) -> add(values));
 
-  private void add(Value value) {
-    String id = value.get("id").stringValue();
-    vehiclesMap.put(id, value);
-  }
-
-  private  void updateInfo(Value newEntry, Value oldEntry) {
-    float newSpeed;
+  private void add(Value values) {
+    vehiclesMap.clear();
+    int speedSum = 0;
+    for (Item recon : values) {
+      vehiclesMap.put(recon.get("id").stringValue(), recon.asValue());
+      speedSum += Integer.parseInt(recon.get("speed").stringValue());
+    }
     vehiclesCount.set(vehiclesMap.size());
-    if (oldEntry != Value.ABSENT) {
-      newSpeed = ((float)(vehiclesCount.get() * vehiclesSpeed.get() + newEntry.get("speed").intValue() -
-              oldEntry.get("speed").intValue()))/vehiclesCount.get();
-    }
-    else {
-      newSpeed = ((float)(vehiclesCount.get() * vehiclesSpeed.get() + newEntry.get("speed").intValue()))
-              /vehiclesCount.get();
-    }
-    vehiclesSpeed.set(newSpeed);
+    vehiclesSpeed.set(((float)speedSum)/vehiclesCount.get());
   }
 
 
