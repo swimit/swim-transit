@@ -7,11 +7,12 @@ import it.swim.api.SwimLane;
 import it.swim.api.ValueLane;
 import it.swim.recon.Record;
 import it.swim.recon.Slot;
-import it.swim.recon.Value;;
+import it.swim.recon.Value;
 
 public class AgencyService extends AbstractService {
 
-  private String agency = "";
+  @SwimLane("agency/name")
+  public ValueLane<String> agency = valueLane().valueClass(String.class);
 
   @SwimLane("agency/vehicles")
   public MapLane<String, Value> vehiclesMap = mapLane().keyClass(String.class).valueClass(Value.class);
@@ -23,10 +24,10 @@ public class AgencyService extends AbstractService {
   public ValueLane<Float> vehiclesSpeed = valueLane().valueClass(Float.class);
 
   @SwimLane("agency/set")
-  public CommandLane<String> agencySet = commandLane().valueClass(String.class).onCommand((String info) -> agency = info);
+  public CommandLane<String> agencySet = commandLane().valueClass(String.class).onCommand((String info) -> agency.set(info));
 
   private void checkVehicleLocations() {
-    Value[] vehicles = NextBusHttpAPI.getVehicleLocations(agency);
+    Value[] vehicles = NextBusHttpAPI.getVehicleLocations(agency.get());
     vehiclesMap.clear();
     int speedSum = 0;
     for (int i = 0; i < vehicles.length; i++) {
