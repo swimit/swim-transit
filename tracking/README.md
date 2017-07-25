@@ -13,7 +13,7 @@ linked to both `AgencyServices`. The bus data was obtained from the [NextBus API
 If you do not have Gradle installed you can find an installation guide [here](https://gradle.org/install).
 Compile and run the basic Tracking App using Gradle
 ```sh
-Gradle gradle -PmainClassName='it.swim.transit.TransitPlane' runMain
+gradle -PmainClassName='it.swim.transit.TransitPlane' runMain
 ```
 Now open up `sf-muni.html` in a browser to track the buses in the sf-muni agency.
 Open `actransit.html` as well in a browser to track the buses in the transit agency.
@@ -21,11 +21,11 @@ Open up `region.html` in order to see the aggregation of the two agencies.
 
 In order to run the Tracking App with the external pulling client. First run the `ExtTransitPlane`
 ```sh
-Gradle gradle -PmainClassName='it.swim.transitExternalClient.ExtTransitPlane' runMain
+gradle -PmainClassName='it.swim.transitExternalClient.ExtTransitPlane' runMain
 ```
 Then, run the external pulling client
 ```sh
-Gradle gradle -PmainClassName='nextBus.externalClient.NextBusExternalClient' runMain
+gradle -PmainClassName='nextBus.externalClient.NextBusExternalClient' runMain
 ```
 Now open up `sf-muni-external.html` in a browser to track the buses in the sf-muni agency.
 Open `actransit-external.html` as well in a browser to track the buses in the transit agency.
