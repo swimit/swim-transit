@@ -1,28 +1,40 @@
 package it.swim.transit;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import it.swim.recon.Attr;
-import it.swim.recon.Record;
-import it.swim.recon.Slot;
-import it.swim.recon.Value;
+import recon.Attr;
+import recon.Record;
+import recon.Slot;
+import swim.server.SwimPlane;
 
 public class NextBusHttpAPI {
 
-  private static Document parse(URL url) {
+  private final SwimPlane plane;
+
+  public NextBusHttpAPI(SwimPlane plane) {
+    this.plane = plane;
+  }
+
+  public void repeatSendVehicleInfo(List<Agency> agencies) {
+    for (Agency agency : agencies) {
+      ScheduledExecutorService run = Executors.newSingleThreadScheduledExecutor();
+      run.scheduleAtFixedRate(() -> sendVehicleInfo(agency.getUri(), agency)
+          , 0, 10, TimeUnit.SECONDS);
+    }
+  }
+
+  private Document parse(URL url) {
     HttpURLConnection urlConnection;
     try {
       urlConnection = (HttpURLConnection) url.openConnection();
@@ -32,43 +44,47 @@ public class NextBusHttpAPI {
       Document file = builder.parse(stream);
       file.normalizeDocument();
       return file;
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (ParserConfigurationException e) {
-      e.printStackTrace();
-    } catch (SAXException e) {
-      e.printStackTrace();
+    } catch (Throwable e) {
+      // ignore errors for now
     }
     return null;
   }
 
-  public static Value[] getVehicleLocations(String ag) {
+  public Record getVehicleLocations(Agency ag) {
     try {
       URL url = new URL(String.format(
-              "http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag));
+          "http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag.getId()));
       Document file = parse(url);
       if (file == null) {
         return null;
       }
       NodeList nodes = file.getElementsByTagName("vehicle");
-      Value[] vehicles = new Value[nodes.getLength()];
+      Record res = Record.empty();
       for (int i = 0; i < nodes.getLength(); i++) {
         String id = ((Element) nodes.item(i)).getAttribute("id").replace("\"", "");
         String routeTag = ((Element) nodes.item(i)).getAttribute("routeTag").replace("\"", "");
         String dirId = ((Element) nodes.item(i)).getAttribute("dirTag").replace("\"", "");
-        String latitude = ((Element) nodes.item(i)).getAttribute("lat").replace("\"", "");
-        String longitude = ((Element) nodes.item(i)).getAttribute("lon").replace("\"", "");
+        float latitude = Float.parseFloat(((Element) nodes.item(i)).getAttribute("lat").replace("\"", ""));
+        float longitude = Float.parseFloat(((Element) nodes.item(i)).getAttribute("lon").replace("\"", ""));
         String speed = ((Element) nodes.item(i)).getAttribute("speedKmHr").replace("\"", "");
         String secsSinceReport = ((Element) nodes.item(i)).getAttribute("secsSinceReport").replace("\"", "");
-        vehicles[i] = Record.of(new Attr("vehicle"), new Slot("id", id), new Slot("routeId", routeTag),
-                new Slot("dirId", dirId), new Slot("latitude", latitude), new Slot("longitude", longitude),
-                new Slot("speed", speed), new Slot("secsSinceReport", secsSinceReport),
-                new Slot("agency", ag));
+
+        res = res.withItem(Record.of(Attr.of("vehicle"), Slot.of("id", id), Slot.of("routeId", routeTag),
+            Slot.of("dirId", dirId), Slot.of("latitude", latitude), Slot.of("longitude", longitude),
+            Slot.of("speed", speed), Slot.of("secsSinceReport", secsSinceReport),
+            Slot.of("agency", ag.getId())));
       }
-      return vehicles;
+      return res;
     } catch (MalformedURLException e) {
       e.printStackTrace();
     }
     return null;
+  }
+
+  private void sendVehicleInfo(String node, Agency ag) {
+    Record vehicles = getVehicleLocations(ag);
+    if (vehicles != null && vehicles.size() > 0) {
+      plane.command("ws://localhost:8090", node, "input", vehicles);
+    }
   }
 }

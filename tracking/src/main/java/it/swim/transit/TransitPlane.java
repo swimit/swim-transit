@@ -1,27 +1,33 @@
 package it.swim.transit;
 
-
-import it.swim.api.AbstractPlane;
-import it.swim.api.ServiceType;
-import it.swim.api.SwimRoute;
-import it.swim.recon.Recon;
-import it.swim.recon.Value;
-import it.swim.server.ServerDef;
-import it.swim.server.SwimPlane;
-import it.swim.server.SwimServer;
-import it.swim.util.Decodee;
-
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import recon.Form;
+import recon.Recon;
+import recon.Value;
+import swim.api.AbstractPlane;
+import swim.api.ServiceType;
+import swim.api.SwimRoute;
+import swim.server.ServerDef;
+import swim.server.SwimPlane;
+import swim.server.SwimServer;
+import swim.util.Decodee;
 
 public class TransitPlane extends AbstractPlane {
 
-  @SwimRoute("/transit/:id")
-  final ServiceType<?> transitService = serviceClass(TransitService.class);
+  @SwimRoute("/country/:id")
+  final ServiceType<?> transitService = serviceClass(CountryService.class);
 
-  @SwimRoute("/agency/:id")
+  @SwimRoute("/state/:country/:state")
+  final ServiceType<?> stateService = serviceClass(StateService.class);
+
+  @SwimRoute("/agency/:country/:state/:id")
   final ServiceType<?> agencyService = serviceClass(AgencyService.class);
 
   public static void main(String[] args) throws IOException {
@@ -36,9 +42,48 @@ public class TransitPlane extends AbstractPlane {
     server.start();
     System.out.println("Running TransitPlane ...");
     server.run(); // blocks until termination
+    startAgencies(planeContext);
+  }
 
-    planeContext.command("/agency/sf-muni", "agency/set", Value.of("sf-muni"));
-    planeContext.command("/agency/actransit", "agency/set", Value.of("actransit"));
+  private static void startAgencies(SwimPlane planeContext) {
+    List<Agency> agencies = loadAgencies();
+    for (Agency agency : agencies) {
+      planeContext.command(agency.getUri(), "addInfo", Form.forClass(Agency.class).mold(agency));
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+
+      }
+    }
+    new NextBusHttpAPI(planeContext).repeatSendVehicleInfo(agencies);
+  }
+
+  private static List<Agency> loadAgencies() {
+    List<Agency> agencies = new ArrayList<>();
+    InputStream is = null;
+    Scanner scanner = null;
+    try {
+      is = FileReader.class.getResourceAsStream("/agencies.csv");
+      scanner = new Scanner(is, "UTF-8");
+      while (scanner.hasNextLine()) {
+        final String[] line = scanner.nextLine().split(",");
+        if (line.length >= 3) {
+          agencies.add(new Agency(line[0], line[1], line[2]));
+        }
+      }
+    } catch (Throwable t) {
+    } finally {
+      try {
+        if (is != null) {
+          is.close();
+        }
+      } catch (IOException ignore) {
+      }
+      if (scanner != null) {
+        scanner.close();
+      }
+    }
+    return agencies;
   }
 
   private static Value loadReconConfig(String[] args) throws IOException {
@@ -64,8 +109,9 @@ public class TransitPlane extends AbstractPlane {
       configValue = Decodee.readUtf8(Recon.FACTORY.blockParser(), configInput);
     } finally {
       try {
-        if (configInput != null)
+        if (configInput != null) {
           configInput.close();
+        }
       } catch (Exception ignored) {
       }
     }

@@ -1,53 +1,59 @@
 package it.swim.transit;
 
-import it.swim.api.AbstractService;
-import it.swim.api.CommandLane;
-import it.swim.api.MapLane;
-import it.swim.api.SwimLane;
-import it.swim.api.ValueLane;
-import it.swim.recon.Record;
-import it.swim.recon.Slot;
-import it.swim.recon.Value;
+import recon.Form;
+import recon.Item;
+import recon.Value;
+import swim.api.AbstractService;
+import swim.api.CommandLane;
+import swim.api.MapLane;
+import swim.api.SwimLane;
+import swim.api.ValueLane;
 
 public class AgencyService extends AbstractService {
 
-  @SwimLane("agency/name")
-  public ValueLane<String> agency = valueLane().valueClass(String.class);
+  @SwimLane("vehicles")
+  public MapLane<String, Value> vehicles = mapLane().keyClass(String.class);
 
-  @SwimLane("agency/vehicles")
-  public MapLane<String, Value> vehiclesMap = mapLane().keyClass(String.class).valueClass(Value.class);
-
-  @SwimLane("agency/count")
+  @SwimLane("count")
   public ValueLane<Integer> vehiclesCount = valueLane().valueClass(Integer.class);
 
-  @SwimLane("agency/speed")
+  @SwimLane("speed")
   public ValueLane<Float> vehiclesSpeed = valueLane().valueClass(Float.class);
 
-  @SwimLane("agency/set")
-  public CommandLane<String> agencySet = commandLane().valueClass(String.class).onCommand((String info) -> agency.set(info));
+  @SwimLane("input")
+  public CommandLane<Value> input = commandLane().onCommand((Value values) -> add(values));
 
-  private void checkVehicleLocations() {
-    Value[] vehicles = NextBusHttpAPI.getVehicleLocations(agency.get());
-    vehiclesMap.clear();
-    int speedSum = 0;
-    for (int i = 0; i < vehicles.length; i++) {
-      vehiclesMap.put(vehicles[i].get("id").stringValue(), vehicles[i]);
-      speedSum += Integer.parseInt(vehicles[i].get("speed").stringValue());
+  private void add(Value value) {
+    if (value.isAbsent() || value.length() == 0) {
+      //System.out.println(nodeUri().toUri() + ": Add value " + value.toRecon());
+      return;
     }
-    vehiclesCount.set(vehiclesMap.size());
-    vehiclesSpeed.set(((float) speedSum) / vehiclesMap.size());
-    scheduleCheckVehicleLocations();
+    vehicles.clear();
+    int speedSum = 0;
+    for (Item recon : value) {
+      final String vehicleId = prop("id").stringValue() + "_" + recon.get("id").stringValue();
+      vehicles.put(vehicleId, recon.asValue());
+      speedSum += Integer.parseInt(recon.get("speed").stringValue());
+    }
+    vehiclesCount.set(vehicles.size());
+    if (vehiclesCount.get() > 0) {
+      vehiclesSpeed.set(((float) speedSum) / vehiclesCount.get());
+    }
   }
 
-  private void scheduleCheckVehicleLocations() {
-    setTimer(10000, () -> checkVehicleLocations());
+  @SwimLane("addInfo")
+  public CommandLane<Agency> addInfo = commandLane().valueClass(Agency.class).onCommand((Agency agency) -> onInfo(agency));
+
+  private void onInfo(Agency agency) {
+    Value agencyValue = Form.forClass(Agency.class).mold(agency).withSlot("agencyUri", this.nodeUri().toUri());
+    context.command("/state/" + agency.getCountry() + "/" + agency.getState(), "addAgency", agencyValue);
   }
 
   @Override
   public void didStart() {
-    System.out.println("Started Service" + nodeUri());
-    scheduleCheckVehicleLocations();
-    Value config = Record.of(new Slot("key", this.nodeUri().toUri()), new Slot("node", this.nodeUri().toUri()));
-    context.command("/transit/bayarea", "agencies/add", config);
+    vehicles.clear();
+    vehiclesSpeed.set((float) 0);
+    vehiclesCount.set(0);
+    System.out.println("Started Service: " + nodeUri().toUri());
   }
 }

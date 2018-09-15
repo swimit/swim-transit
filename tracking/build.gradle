@@ -4,6 +4,9 @@ apply plugin: 'maven'
 
 repositories {
   mavenCentral()
+  maven {
+    url 'https://repo.swim.it/swim-public/'
+  }
 }
 
 group = 'it.swim'
@@ -17,8 +20,8 @@ configurations.all {
 }
 
 dependencies {
- compile fileTree(dir: 'lib', include: ['*.jar'])
-  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: '9.4.6.v20170531' }
+  compile 'ai.swim:swim-server-client:1.2.1'
+}
 
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
@@ -50,15 +53,9 @@ artifacts {
   archives javadocJar, sourcesJar
 }
 
-// gradle -Pconfig=swim.recon runMain
-if (project.hasProperty('mainClassName')) {
-  task runMain(type: JavaExec) {
-    main = mainClassName
-    classpath = sourceSets.test.runtimeClasspath
-    if (project.hasProperty('config')) {
-      args = [project.property('config')]
-    }
-    systemProperties System.properties
-  }
+task runMain(type: JavaExec) {
+  main = mainClassName
+  systemProperties System.properties
 }
 
+mainClassName = 'it.swim.transit.TransitPlane'

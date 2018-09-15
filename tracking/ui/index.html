@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Real-time Transit | SWIM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.css" rel="stylesheet"/>
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.js"></script>
+    <script src="https://apis.google.com/js/platform.js"></script>
+    <script src="assets/swim-app.min.js" swim-app></script>
+
+    <style>
+      html, body {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        font-family: Lato, sans-serif;
+        font-size: 12px;
+        color: #4a4a4a;
+      }
+      
+      * {
+        margin: 0px;
+        padding: 0px;
+      }
+      .logoContainer {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 500px;
+        height: 51px;
+        display: flex;
+        flex-direction: row;
+      }
+      .logoContainer h4 {
+        font-size: 48px;
+        font-weight: 300;
+        margin-top: 18px;
+      }
+      .powered-by-swim-ai {
+        position: absolute;
+        bottom: 35px;
+        left: 12px;
+        width: 142px;
+        height: 46px;
+        object-fit: contain;
+      }
+      .trafficware-logo {
+        margin: 12px 16px;
+        height: 51px;
+        width: 182px;
+      }
+      #title {
+        position: absolute;
+        top: 4px;
+        left: 12px;
+        margin: 0;
+        font-size: 36px;
+        font-weight: 400;
+        color: #3d484e;
+        pointer-events: none;
+      }
+      small {
+        font-size: 14px;
+        font-weight: 300;
+        margin-left: 0px;
+      }
+      #main {
+        display: flex;
+        flex-grow: 1;
+        position: relative;
+      }
+      .subheaderNavigation {
+        position: absolute;
+        left: 15px;
+        top: 76px;
+        display: flex;
+        flex-direction: row;
+      }
+      .subheaderButton {
+        border-radius: 5px;
+        background-color: rgb(53, 61, 72);
+        color: white;
+        padding: 4px 15px;
+        font-size: 12px;
+        margin: 0px 8px 0 0;
+        font-weight: normal;
+      }
+      .busPopover {
+        color: white;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .busColumns {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .busTree {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .busPhaseCharts {
+        width: 224px;
+        height: 300px;
+        overflow-x: auto;
+      }
+      .chartTitle {
+        width: 100%;
+        font-weight: 300;
+      }
+      .chartContainer {
+        width: 100%;
+        height: 60px;
+      }
+      .busCircle {
+        border-radius: 50%;
+        flex-grow: 0;
+        width: 97px;
+        height: 97px;
+        margin: 5px auto;
+        display: flex;
+        align-items: center;
+      }
+      .busCircleLabel {
+        text-align: center;
+        width: 100%;
+      }
+      .placardHeader {
+        display: flex;
+        flex-direction: row;
+        margin: 3px 0px;
+      }
+      .placardSubheader {
+        display: flex;
+        flex-direction: row;
+        margin: 11px 0px 11px 0px;
+      }
+      .placardSubheaderItem {
+        border-radius: 8px;
+        background-color: #4171b8;
+        width: 50px;
+        height: 15px;
+        text-align: center;
+        line-height: 15px;
+        font-size: 9px;
+        margin: 0px 8px 0 0;
+        color: #000000;
+      }
+      .placardLabel {
+        font-size: 12px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        padding-left: 10px;
+      }
+      .ledIcon {
+        width: 29px;
+        height: 29px;
+        display: flex;
+        align-items: center;
+        border-radius: 50%;
+      }
+      .ledLabel {
+        width: 100%;
+        text-align: center;
+        color: white;
+      }
+    
+    </style>    
+  </head>
+
+  <body>
+
+    <script type="text/recon">
+      #############################
+      # begin main body
+      @div {
+        id: 'main'
+        style: {
+          display: flex
+          flex-grow: 1
+        }
+
+        #######################
+        # begin map board
+        @board {
+          id: board
+
+          host: 'swim://localhost:8090'
+          node: '/country/US'
+          buses: @link(lane: 'vehicles', type: map)
+
+          primaryColor: '#18cae6'
+
+          radiusInterpolator: @let($interpolate(1, 30))
+          latencyColor: @let($interpolate('#B1D2E4', '#456678'))
+
+          surface: @mapboxMap {
+            accessToken: 'pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1Mnd6M3EifQ.qpRE7xC08AyZfxJ56LoN7w'
+            style: 'mapbox://styles/swimit/cis528ecx0024gom3a8ycxyga'
+            center: {lng: -93.5795, lat: 37.8283}
+            pitch: 0
+            zoom: 4
+
+            #############################
+            # create a mapbox layer which will hold all the buses
+            @mapboxLayer {
+              type: circle
+              circleColor: '#292929'
+              circleOpacity: 0.8
+              circleRadius: radius
+
+              @each(busId: $buses.*:) {
+                key: $busId
+
+                @mapboxLayer {
+                  bus: @let($buses.($busId))
+                  pointRadius: @let($radiusInterpolator($pow($zoom, 3) / $pow(24, 3)))
+
+                  @mapboxPoint {
+                    coordinates: {lng: $bus.longitude, lat: $bus.latitude}
+
+                    click: {
+                      #############################
+                      # begin bus popover
+                      popover: @mapboxPopover {
+                        backgroundColor: 'rgb(53, 61, 72)'
+                        popoverWidth: '240px'
+                        popoverHeight: '100px'
+
+                        body: @placard {
+
+                          body: @div(class: busPopover) {
+                            @div(class: placardHeader) {
+                              style: {
+                                display: flex
+                                flex-direction: row
+                              }
+                              @div(class: ledIcon) {
+                                @style {
+                                  background-color: '#4171b8'
+                                }
+                                @h3(class: ledLabel) {
+                                  style: {
+                                    padding-top: '2px'
+                                  }
+                                  @img(src:'assets/images/swim-logo-bug-nobg.svg', height: '22px')
+                                }
+                              }
+                              @h2(class: placardLabel) {
+                                @text([Agency: {$eager($bus.agency)}])
+                              }
+                              @div(class: ledIcon) {
+                                @style {
+                                  background-color: '#4d6069'
+                                }
+                                @h3(class: ledLabel) {
+                                  @text($eager($bus.id))
+                                }
+                              }
+                            }
+                            @div(class: placardSubheader) {
+                              @div(class: placardSubheaderItem) {
+                                transition: @transition(1000, linear)
+                                @text([{$round($eager($bus.speed))} km/h])
+                              }
+                            }
+                          } # end div
+                        } #end placard
+                      } #end bus popover
+                    } # end click
+
+                  } #end mappoint
+                } # end layer
+              } # end each
+            }
+          }
+
+          # define what appears inside the right totem sidebar
+          right: @totem {
+            spacing: '10px'
+            desiredWidth: '20%'
+            minVisibleWidth: '200px'
+            blueLabelColor: #000000 # @let($contrast('#5ab8ff'))
+
+            @tile {
+              backgroundColor: 'rgba(255, 255, 255, 1.0)'
+              body: @pie {
+                agencySpeed: @link(lane: 'stateSpeed', type: map)
+                title: 'Speed (km/h)'
+                @each(agSp: $agencySpeed.*:) {
+                  @wedge {
+                    value: @let($agencySpeed.($agSp))
+                    appLabel: $agSp
+                    label: @text($round($value))
+                    labelColor: $blueLabelColor
+                    tickColor: '#B7B7B7'
+                    legendColor: '#989898'
+                    legend: @text([{$eager($appLabel)}])
+                    innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                    outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  }
+                }
+              }
+            } #end tile
+
+            @tile {
+              backgroundColor: 'rgba(255, 255, 255, 1.0)'
+              body: @pie {
+                agencyCounts: @link(lane: 'stateCount', type: map)
+                title: 'Count'
+                @each(agencyCount: $agencyCounts.*:) {
+                  @wedge {
+                    value: @let($agencyCounts.($agencyCount))
+                    appLabel: $agencyCount
+                    label: @text($value)
+                    labelColor: $blueLabelColor
+                    tickColor: '#B7B7B7'
+                    legendColor: '#989898'
+                    legend: @text([{$eager($appLabel)}])
+                    innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                    outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  }
+                }
+              }
+            } #end tile
+
+            @tile {
+              backgroundColor: 'rgba(255, 255, 255, 1.0)'
+              body:  @pie {
+                totalCount: @link(lane: 'count', type: value)
+                title: 'Total Count'
+                @wedge {
+                  value: $totalCount.current
+                  label: @text($percent($value, $total))
+                  labelColor: $blueLabelColor
+                  tickColor: '#B7B7B7'
+                  legendColor: '#989898'
+                  legend: @text($value)
+                  innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                  outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                }
+                @wedge {
+                  value: $totalCount.max - $totalCount.current
+                  labelColor: $blueLabelColor
+                  tickColor: '#B7B7B7'
+                  legendColor: '#989898'
+                  innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                  outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  arcColor: $opacity($primaryHue($value), 0.5)
+                }
+              }
+            } #end tile
+          } # end totem
+        } # end board
+        # end map board
+        #######################
+
+        #############################
+        # top logo
+        @div(class: 'logoContainer') {
+          @a(href: "https://www.swim.ai") {
+            @img(
+              class: trafficware-logo
+              src: 'assets/images/swim-logo-blue.svg'
+            )
+          }
+          @h4 [Transit]
+        } #end logo container
+
+        #######################
+        # subheader nav bar
+        @div(class: subheaderNavigation) {
+          @div(class: subheaderButton) 'US'
+        } # end subheaderNavigation
+
+        #######################
+        # powered by swim footer logo
+        @img(
+          class: powered-by-swim-ai
+          src: 'assets/images/swim-ai-powered-by.png',
+          srcset: 'assets/images/swim-ai-powered-by@2x.png 2x,assets/images/swim-ai-powered-by@3x.png 3x'
+        )
+      } #end div
+      # end main body
+      #######################
+    </script>
+
+    <script type="text/javascript">
+      function timer() {
+        const elem = document.querySelector('.timer');
+        setInterval(function() {
+          const date = new Date(); // your logic string for date
+          const locale = date.toLocaleString();
+          elem.innerText = locale;
+        }, 1000)
+        
+      }
+    </script>
+    
+  </body>
+</html>
