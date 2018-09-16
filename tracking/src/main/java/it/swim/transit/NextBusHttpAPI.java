@@ -84,7 +84,7 @@ public class NextBusHttpAPI {
   private void sendVehicleInfo(String node, Agency ag) {
     Record vehicles = getVehicleLocations(ag);
     if (vehicles != null && vehicles.size() > 0) {
-      plane.command("ws://localhost:8090", node, "input", vehicles);
+      plane.command(node, "input", vehicles);
     }
   }
 }

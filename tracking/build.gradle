@@ -1,5 +1,15 @@
+buildscript {
+  repositories {
+    maven { url 'https://plugins.gradle.org/m2/' }
+  }
+  dependencies {
+    classpath 'com.netflix.nebula:gradle-ospackage-plugin:4.3.0'
+  }
+}
+
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'nebula.ospackage-application'
 apply plugin: 'maven'
 
 repositories {
@@ -10,8 +20,9 @@ repositories {
 }
 
 group = 'it.swim'
-description = "Swim transit space"
+description = "Swim transit"
 sourceCompatibility = 1.8
+version = project.property("application.version")
 
 configurations.all {
   resolutionStrategy {
@@ -59,3 +70,35 @@ task runMain(type: JavaExec) {
 }
 
 mainClassName = 'it.swim.transit.TransitPlane'
+
+task packageDeb(type: Deb) {
+  maintainer = 'developers@swim.ai'
+
+  configurationFile("/etc/sysconfig/${project.name}")
+  preInstall "addgroup --quiet --system ${project.name}"
+  preInstall "adduser --quiet --system --ingroup ${project.name} --no-create-home --disabled-password ${project.name}"
+  postInstall "systemctl preset ${project.name} > /dev/null 2>&1"
+  postInstall "systemctl start ${project.name} > /dev/null 2>&1"
+  preUninstall  "systemctl disable ${project.name} > /dev/null 2>&1"
+  preUninstall  "systemctl stop ${project.name} > /dev/null 2>&1"
+  postUninstall "systemctl daemon-reload > /dev/null 2>&1"
+
+  from('pkg') {
+    into '/etc/systemd/system'
+    include '*.service'
+    addParentDirs false
+    expand project.properties
+    user 'root'
+    permissionGroup 'root'
+    fileMode = 0644
+  }
+
+  from('pkg') {
+    into '/etc/sysconfig'
+    include "${project.name}"
+    user 'root'
+    permissionGroup 'root'
+    fileMode = 0644
+    fileType CONFIG | NOREPLACE
+  }
+}
