@@ -10,12 +10,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import it.swim.transit.model.Agency;
+import it.swim.transit.model.Vehicle;
+import it.swim.transit.model.Vehicles;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import recon.Attr;
-import recon.Record;
-import recon.Slot;
+import recon.Form;
+import recon.Value;
 import swim.server.SwimPlane;
 
 public class NextBusHttpAPI {
@@ -53,7 +56,7 @@ public class NextBusHttpAPI {
     return null;
   }
 
-  public Record getVehicleLocations(Agency ag, int index) {
+  public Vehicles getVehicleLocations(Agency ag, int index) {
     try {
       URL url = new URL(String.format(
           "http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag.getId()));
@@ -61,33 +64,50 @@ public class NextBusHttpAPI {
       if (file == null) {
         return null;
       }
+
       NodeList nodes = file.getElementsByTagName("vehicle");
-      Record res = Record.empty();
+      final Vehicles vehicles = new Vehicles();
       for (int i = 0; i < nodes.getLength(); i++) {
         final String id = ((Element) nodes.item(i)).getAttribute("id").replace("\"", "");
         final String routeTag = ((Element) nodes.item(i)).getAttribute("routeTag").replace("\"", "");
         final String dirId = ((Element) nodes.item(i)).getAttribute("dirTag").replace("\"", "");
-        final float latitude = Float.parseFloat(((Element) nodes.item(i)).getAttribute("lat").replace("\"", ""));
-        final float longitude = Float.parseFloat(((Element) nodes.item(i)).getAttribute("lon").replace("\"", ""));
-        final int speed = Integer.parseInt(((Element) nodes.item(i)).getAttribute("speedKmHr").replace("\"", ""));
-        final String secsSinceReport = ((Element) nodes.item(i)).getAttribute("secsSinceReport").replace("\"", "");
+        final float latitude = parseFloat(nodes, i, "lat");
+        final float longitude = parseFloat(nodes, i, "lon");
+        final int speed = parseInt(nodes, i, "speedKmHr");
+        final int secsSinceReport = parseInt(nodes, i, "secsSinceReport");
 
-        res = res.withItem(Record.of(Attr.of("vehicle"), Slot.of("id", id), Slot.of("routeId", routeTag),
-            Slot.of("dirId", dirId), Slot.of("latitude", latitude), Slot.of("longitude", longitude),
-            Slot.of("speed", speed), Slot.of("secsSinceReport", secsSinceReport),
-            Slot.of("agency", ag.getId()), Slot.of("index", index)));
+        final Vehicle vehicle = new Vehicle().withId(id).withDirId(dirId).withIndex(index).withLatitude(latitude)
+            .withLongitude(longitude).withRouteTag(routeTag).withSecsSinceReport(secsSinceReport).withSpeed(speed);
+        vehicles.add(vehicle);
       }
-      return res;
-    } catch (MalformedURLException e) {
+      return vehicles;
+    } catch (Exception e) {
       e.printStackTrace();
     }
     return null;
   }
 
+  private int parseInt(NodeList nodes, int i, String property) {
+    try {
+      return Integer.parseInt(((Element) nodes.item(i)).getAttribute(property).replace("\"", ""));
+    } catch (NumberFormatException e) {
+      return 0;
+    }
+  }
+
+  private float parseFloat(NodeList nodes, int i, String property) {
+    try {
+      return Float.parseFloat(((Element) nodes.item(i)).getAttribute(property).replace("\"", ""));
+    } catch (NumberFormatException e) {
+      return 0.0f;
+    }
+  }
+
   private void sendVehicleInfo(String node, Agency ag, int index) {
-    Record vehicles = getVehicleLocations(ag, index);
-    if (vehicles != null && vehicles.size() > 0) {
-      plane.command(node, "input", vehicles);
+    final Vehicles vehicles = getVehicleLocations(ag, index);
+    if (vehicles != null && vehicles.getVehicles().size() > 0) {
+      final Value value = Form.forClass(Vehicles.class).mold(vehicles);
+      plane.command(node, "input", value);
     }
   }
 }

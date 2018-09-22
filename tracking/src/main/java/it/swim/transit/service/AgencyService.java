@@ -1,5 +1,8 @@
-package it.swim.transit;
+package it.swim.transit.service;
 
+import it.swim.transit.model.Agency;
+import it.swim.transit.model.Vehicle;
+import it.swim.transit.model.Vehicles;
 import recon.Form;
 import recon.Item;
 import recon.Value;
@@ -9,10 +12,12 @@ import swim.api.MapLane;
 import swim.api.SwimLane;
 import swim.api.ValueLane;
 
+import java.util.List;
+
 public class AgencyService extends AbstractService {
 
   @SwimLane("vehicles")
-  public MapLane<String, Value> vehicles = mapLane().keyClass(String.class);
+  public MapLane<String, Vehicle> vehicles = mapLane().keyClass(String.class).valueClass(Vehicle.class);
 
   @SwimLane("count")
   public ValueLane<Integer> vehiclesCount = valueLane().valueClass(Integer.class);
@@ -21,21 +26,20 @@ public class AgencyService extends AbstractService {
   public ValueLane<Float> vehiclesSpeed = valueLane().valueClass(Float.class);
 
   @SwimLane("input")
-  public CommandLane<Value> input = commandLane().onCommand((Value values) -> add(values));
+  public CommandLane<Vehicles> input = commandLane().valueClass(Vehicles.class).onCommand(v -> add(v));
 
-  private void add(Value value) {
-    if (value.isAbsent() || value.length() == 0) {
-      //System.out.println(nodeUri().toUri() + ": Add value " + value.toRecon());
+  private void add(Vehicles vehicles) {
+    if (vehicles == null ||vehicles.getVehicles().size() == 0) {
       return;
     }
-    vehicles.clear();
+    this.vehicles.clear();
     int speedSum = 0;
-    for (Item recon : value) {
-      final String vehicleId = prop("id").stringValue() + "_" + recon.get("id").stringValue();
-      vehicles.put(vehicleId, recon.asValue());
-      speedSum += Integer.parseInt(recon.get("speed").stringValue());
+    for (Vehicle v : vehicles.getVehicles()) {
+      final String vehicleId = prop("id").stringValue() + "_" + v.getId();
+      this.vehicles.put(vehicleId, v);
+      speedSum += v.getSpeed();
     }
-    vehiclesCount.set(vehicles.size());
+    vehiclesCount.set(this.vehicles.size());
     if (vehiclesCount.get() > 0) {
       vehiclesSpeed.set(((float) speedSum) / vehiclesCount.get());
     }

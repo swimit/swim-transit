@@ -32,6 +32,7 @@ configurations.all {
 
 dependencies {
   compile 'ai.swim:swim-server-client:1.2.1'
+  compile 'ai.swim:swim-app-api:0.1'
 }
 
 tasks.withType(JavaCompile) {
@@ -101,4 +102,12 @@ task packageDeb(type: Deb) {
     fileMode = 0644
     fileType CONFIG | NOREPLACE
   }
+}
+
+
+//usage: gradle genApiRecon -Dapp.recon=/transit=space.recon -Doutput=src/ui/api/
+task genApiRecon(type: JavaExec) {
+  main = 'ai.swim.app.api.ApiReconGenerator'
+  classpath = sourceSets.test.runtimeClasspath
+  systemProperties System.properties
 }

@@ -1,6 +1,8 @@
-package it.swim.transit;
+package it.swim.transit.service;
 
 import java.util.Iterator;
+
+import it.swim.transit.model.Vehicle;
 import recon.Record;
 import recon.Value;
 import swim.api.AbstractService;
@@ -25,12 +27,12 @@ public class StateService extends AbstractService {
       .didUpdate((Value key, Integer newCount, Integer prevCount) -> updateCounts(key.stringValue(), newCount));
 
   @SwimLane("vehicles")
-  public MapLane<String, Value> vehicles = mapLane().keyClass(String.class).valueClass(Value.class);
+  public MapLane<String, Vehicle> vehicles = mapLane().keyClass(String.class).valueClass(Vehicle.class);
 
   @SwimLane("joinAgencyVehicles")
-  public JoinMapLane<Value, String, Value> joinAgencyVehicles = joinMapLane().keyClass(String.class)
-      .valueClass(Value.class).didUpdate(
-          (String key, Value newEntry, Value oldEntry) -> vehicles.put(key, newEntry));
+  public JoinMapLane<Value, String, Vehicle> joinAgencyVehicles = joinMapLane().keyClass(String.class)
+      .valueClass(Vehicle.class).didUpdate(
+          (String key, Vehicle newEntry, Vehicle oldEntry) -> vehicles.put(key, newEntry));
 
   @SwimLane("speed")
   public ValueLane<Float> speed = valueLane().valueClass(Float.class);
@@ -43,7 +45,7 @@ public class StateService extends AbstractService {
       .didUpdate((Value key, Float newSpeed, Float oldSpeed) -> updateSpeeds(key.stringValue(), newSpeed));
 
   @SwimLane("addAgency")
-  public CommandLane<Value> agencyAdd = commandLane().valueClass(Value.class).onCommand((Value value) -> {
+  public CommandLane<Value> agencyAdd = commandLane().onCommand((Value value) -> {
     joinAgencyCount.downlink(value.get("id")).nodeUri(Uri.parse(value.get("agencyUri").stringValue()))
         .laneUri("count").open();
     joinAgencyVehicles.downlink(value.get("id")).nodeUri(Uri.parse(value.get("agencyUri").stringValue()))
