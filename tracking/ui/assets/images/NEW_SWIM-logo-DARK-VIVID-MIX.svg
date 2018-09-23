@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1446px" height="351px" viewBox="0 0 1446 351" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 50 (54983) - http://www.bohemiancoding.com/sketch -->
+    <title>NEW SWIM logo - DARK VIVID MIX</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="1448" height="352"></rect>
+    </defs>
+    <g id="100---NEW-VIVID-MIX---NEW-LOGO-arcade-retro-base" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="MOST-REFINED---READY---new-SWIM-logo---DARK-VIVID-MIX-@2560x-on-DARK" transform="translate(-527.000000, -536.000000)">
+            <g id="NEW-SWIM-logo---DARK-VIVID-MIX" transform="translate(526.000000, 536.000000)">
+                <g>
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="Mask" opacity="0.285714286"></g>
+                    <g mask="url(#mask-2)">
+                        <g transform="translate(-14.000000, -53.000000)">
+                            <g id="M" transform="translate(1154.000000, 58.000000)">
+                                <rect id="Rectangle-Copy" fill="#50E3C2" opacity="0.25" x="1" y="0" width="305.912377" height="345.497835"></rect>
+                                <rect id="Rectangle-Copy-19" fill="#50E3C2" opacity="0.75" x="1" y="0" width="84.0372399" height="345.497835"></rect>
+                                <rect id="Rectangle-Copy-21" fill="#50E3C2" opacity="0.75" x="222.875137" y="0" width="84.0372399" height="345.497835"></rect>
+                                <path d="M153.444726,0 C163.148242,65.1528252 183.828208,129.077535 215.484625,191.774129 C247.141042,254.470723 277.646167,305.711959 307,345.497835 L0.875136911,345.497835 C30.9077375,305.711959 61.5819152,254.470723 92.89767,191.774129 C124.213425,129.077535 144.395777,65.1528252 153.444726,0 Z" id="Rectangle-Copy-17" fill="#50E3C2" opacity="0.75" transform="translate(153.937568, 172.748918) scale(1, -1) translate(-153.937568, -172.748918) "></path>
+                            </g>
+                            <g id="I" transform="translate(837.750274, 58.000000)">
+                                <polygon id="Rectangle-Copy-7" fill="#C200FB" opacity="0.25" points="115.624331 114 231.248662 345.497835 0 345.497835"></polygon>
+                                <polygon id="Rectangle-Copy-24" fill="#C200FB" opacity="0.75" points="65 102.914959 116.01862 0 116.01862 345.497835 65 345.497835"></polygon>
+                                <polygon id="Rectangle-Copy-26" fill="#C200FB" opacity="0.75" points="98 36.819721 116.006572 0 116.006572 345.497835 98 345.497835"></polygon>
+                                <polygon id="Rectangle-Copy-25" fill="#C200FB" opacity="0.5" transform="translate(141.509310, 195.216450) scale(-1, 1) translate(-141.509310, -195.216450) " points="116 147.914959 167.01862 45 167.01862 345.4329 116 345.4329"></polygon>
+                            </g>
+                            <g id="W" transform="translate(441.125958, 58.000000)">
+                                <polygon id="Rectangle-Copy-16" fill="#7ED321" opacity="0.25" points="171.03943 93 279.078861 345.363636 63 345.363636"></polygon>
+                                <polygon id="Rectangle-Copy-17" fill="#7ED321" opacity="0.75" transform="translate(128.296824, 172.748918) scale(1, -1) translate(-128.296824, -172.748918) " points="128.296824 0 256.593647 345.497835 0 345.497835"></polygon>
+                                <polygon id="Rectangle-Copy-18" fill="#7ED321" opacity="0.75" transform="translate(213.296824, 172.748918) scale(1, -1) translate(-213.296824, -172.748918) " points="213.296824 0 341.593647 345.497835 85 345.497835"></polygon>
+                            </g>
+                            <g id="S">
+                                <ellipse id="Combined-Shape-Copy-4" fill="#00A6ED" opacity="0.25" transform="translate(190.269445, 228.692054) rotate(-270.000000) translate(-190.269445, -228.692054) " cx="190.269445" cy="228.692054" rx="174.735971" ry="174.924251"></ellipse>
+                                <ellipse id="Combined-Shape-Copy" fill="#00A6ED" opacity="0.75" transform="translate(190.556867, 228.556867) rotate(-315.000000) translate(-190.556867, -228.556867) " cx="190.556867" cy="228.556867" rx="117.710073" ry="117.836907"></ellipse>
+                                <path d="M296.751971,224.489757 C296.751971,145.210371 232.243455,80.8465776 152.668168,80.8465776 C73.0928804,80.8465776 8.5843644,145.115218 8.5843644,224.394605 C101.32841,224.394605 187.329659,224.489757 296.751971,224.489757 Z" id="Combined-Shape-Copy-2" fill="#00A6ED" transform="translate(152.668168, 152.668168) rotate(-45.000000) translate(-152.668168, -152.668168) "></path>
+                                <path d="M372.717418,377.415716 C372.717418,297.657118 307.861965,233 227.858709,233 C147.855453,233 83,297.657118 83,377.415716 C176.242838,377.415716 262.706616,377.415716 372.717418,377.415716 Z" id="Combined-Shape-Copy-3" fill="#00A6ED" transform="translate(227.858709, 305.207858) rotate(-225.000000) translate(-227.858709, -305.207858) "></path>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
