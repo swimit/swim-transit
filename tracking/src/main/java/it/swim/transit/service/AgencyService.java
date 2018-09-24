@@ -36,7 +36,7 @@ public class AgencyService extends AbstractService {
     int speedSum = 0;
     for (Vehicle v : vehicles.getVehicles()) {
       final String vehicleId = prop("id").stringValue() + "_" + v.getId();
-      this.vehicles.put(vehicleId, v);
+      this.vehicles.put(vehicleId, v.withAgency(prop("id").stringValue("")));
       speedSum += v.getSpeed();
     }
     vehiclesCount.set(this.vehicles.size());
