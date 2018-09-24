@@ -1,6 +1,8 @@
 package it.swim.transit.model;
 
+import recon.Form;
 import recon.ReconName;
+import recon.Value;
 
 import java.util.Objects;
 
@@ -10,14 +12,16 @@ public class Agency {
   private String id = "";
   private String state = "";
   private String country = "";
+  private int index = 0;
 
   public Agency() {
   }
 
-  public Agency(String id, String state, String country) {
+  public Agency(String id, String state, String country, int index) {
     this.id = id;
     this.state = state;
     this.country = country;
+    this.index = index;
   }
 
   public String getId() {
@@ -32,8 +36,16 @@ public class Agency {
     return country;
   }
 
+  public int getIndex() {
+    return index;
+  }
+
   public String getUri() {
     return "/agency/" + getCountry() + "/" + getState() + "/" + getId();
+  }
+
+  public Value toValue() {
+    return Form.forClass(Agency.class).mold(this);
   }
 
   @Override
@@ -43,12 +55,13 @@ public class Agency {
     Agency agency = (Agency) o;
     return Objects.equals(id, agency.id) &&
         Objects.equals(state, agency.state) &&
-        Objects.equals(country, agency.country);
+        Objects.equals(country, agency.country) &&
+        Objects.equals(index, agency.index);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, state, country);
+    return Objects.hash(id, state, country, index);
   }
 
   @Override
@@ -57,6 +70,7 @@ public class Agency {
         "id='" + id + '\'' +
         ", state='" + state + '\'' +
         ", country='" + country + '\'' +
+        ", index=" + index +
         '}';
   }
 }

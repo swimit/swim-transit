@@ -2,7 +2,9 @@ package it.swim.transit.service;
 
 import java.util.Iterator;
 
+import it.swim.transit.model.Agency;
 import it.swim.transit.model.Vehicle;
+import recon.Form;
 import recon.Record;
 import recon.Value;
 import swim.api.AbstractService;
@@ -53,10 +55,11 @@ public class CountryService extends AbstractService {
     states.put(value.get("state").stringValue(), value.get("state").stringValue());
     joinStateCount.downlink(value.get("state")).nodeUri(Uri.parse(value.get("stateUri").stringValue()))
         .laneUri("count").open();
-    joinAgencyVehicles.downlink(value.get("id")).nodeUri(Uri.parse(value.get("agencyUri").stringValue()))
-        .laneUri("vehicles").open();
     joinStateSpeed.downlink(value.get("state")).nodeUri(Uri.parse(value.get("stateUri").stringValue()))
         .laneUri("speed").open();
+    final Agency agency = (Agency) Form.forClass(Agency.class).cast(value);
+    joinAgencyVehicles.downlink(value.get("id")).nodeUri(agency.getUri()).laneUri("vehicles").open();
+
   });
 
   public void updateCounts(String state, Value newCount) {

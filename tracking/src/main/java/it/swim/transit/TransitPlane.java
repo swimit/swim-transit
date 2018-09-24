@@ -70,10 +70,11 @@ public class TransitPlane extends AbstractPlane {
     try {
       is = FileReader.class.getResourceAsStream("/agencies.csv");
       scanner = new Scanner(is, "UTF-8");
+      int index = 0;
       while (scanner.hasNextLine()) {
         final String[] line = scanner.nextLine().split(",");
         if (line.length >= 3) {
-          agencies.add(new Agency(line[0], line[1], line[2]));
+          agencies.add(new Agency(line[0], line[1], line[2], index++));
         }
       }
     } catch (Throwable t) {

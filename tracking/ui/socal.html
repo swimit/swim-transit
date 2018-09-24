@@ -211,6 +211,7 @@
           node: '/state/US/S-CA'
           buses: @link(lane: 'vehicles', type: map)
           primaryColor: '#18cae6'
+          colorRange: {0: '#00A6ED', 1: '#7ED321', 2:'#C200FB', 3:'#50E3C2', 4:'#57B8FF', 5:'#5AFF15', 6:'#55DDE0', 7:'#F7AEF8'}
 
           surface: @mapboxMap {
             accessToken: 'pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1Mnd6M3EifQ.qpRE7xC08AyZfxJ56LoN7w'
@@ -218,12 +219,10 @@
             center: {lng: -118, lat:  33.95}
             pitch: 45
             zoom: 9.7
-
             #############################
             # create a mapbox layer which will hold all the buses
             @mapboxLayer {
               type: circle
-              colorRange: {0: '#00A6ED', 1: '#7ED321', 2:'#C200FB', 3:'#50E3C2', 4:'#57B8FF', 5:'#5AFF15', 6:'#55DDE0', 7:'#F7AEF8'}
               circleOpacity: opacity
               circleColor: color
               @each(busId: $buses.*:) {
@@ -311,7 +310,9 @@
                 @each(agSp: $agencySpeed.*:) {
                   @wedge {
                     value: @let($agencySpeed.($agSp))
-                    appLabel: $agSp
+                    appLabel: $agSp.id
+                    agencyIndex: $agSp.index % 8
+                    primaryColor: $colorRange.($agencyIndex)
                     label: @text($round($value))
                     labelColor: $blueLabelColor
                     tickColor: '#B7B7B7'
@@ -333,7 +334,9 @@
                 @each(agencyCount: $agencyCounts.*:) {
                   @wedge {
                     value: @let($agencyCounts.($agencyCount))
-                    appLabel: $agencyCount
+                    appLabel: $agencyCount.id
+                    agencyIndex: $agencyCount.index % 8
+                    primaryColor: $colorRange.($agencyIndex)
                     label: @text($value)
                     labelColor: $blueLabelColor
                     tickColor: '#B7B7B7'

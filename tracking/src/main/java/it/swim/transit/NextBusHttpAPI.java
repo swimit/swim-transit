@@ -30,13 +30,10 @@ public class NextBusHttpAPI {
   }
 
   public void repeatSendVehicleInfo(List<Agency> agencies) {
-    int count = 0;
     for (Agency agency : agencies) {
-      final int index = count;
       ScheduledExecutorService run = Executors.newSingleThreadScheduledExecutor();
-      run.scheduleAtFixedRate(() -> sendVehicleInfo(agency.getUri(), agency, index)
-          , 10 + count, 10, TimeUnit.SECONDS);
-      count += 1;
+      run.scheduleAtFixedRate(() -> sendVehicleInfo(agency.getUri(), agency)
+          , 10 + agency.getIndex(), 10, TimeUnit.SECONDS);
     }
   }
 
@@ -56,7 +53,7 @@ public class NextBusHttpAPI {
     return null;
   }
 
-  public Vehicles getVehicleLocations(Agency ag, int index) {
+  public Vehicles getVehicleLocations(Agency ag) {
     try {
       URL url = new URL(String.format(
           "http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag.getId()));
@@ -76,7 +73,7 @@ public class NextBusHttpAPI {
         final int speed = parseInt(nodes, i, "speedKmHr");
         final int secsSinceReport = parseInt(nodes, i, "secsSinceReport");
 
-        final Vehicle vehicle = new Vehicle().withId(id).withDirId(dirId).withIndex(index).withLatitude(latitude)
+        final Vehicle vehicle = new Vehicle().withId(id).withDirId(dirId).withIndex(ag.getIndex()).withLatitude(latitude)
             .withLongitude(longitude).withRouteTag(routeTag).withSecsSinceReport(secsSinceReport).withSpeed(speed);
         vehicles.add(vehicle);
       }
@@ -103,8 +100,8 @@ public class NextBusHttpAPI {
     }
   }
 
-  private void sendVehicleInfo(String node, Agency ag, int index) {
-    final Vehicles vehicles = getVehicleLocations(ag, index);
+  private void sendVehicleInfo(String node, Agency ag) {
+    final Vehicles vehicles = getVehicleLocations(ag);
     if (vehicles != null && vehicles.getVehicles().size() > 0) {
       final Value value = Form.forClass(Vehicles.class).mold(vehicles);
       plane.command(node, "input", value);
