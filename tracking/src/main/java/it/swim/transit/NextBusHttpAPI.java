@@ -72,9 +72,29 @@ public class NextBusHttpAPI {
         final float longitude = parseFloat(nodes, i, "lon");
         final int speed = parseInt(nodes, i, "speedKmHr");
         final int secsSinceReport = parseInt(nodes, i, "secsSinceReport");
+        final int headingInt = parseInt(nodes, i, "heading");
+        String heading = "";
+        if (headingInt < 23 || headingInt >= 338) {
+          heading = "E";
+        } else if (23 <= headingInt || headingInt < 68) {
+          heading = "NE";
+        } else if (68 <= headingInt || headingInt < 113) {
+          heading = "N";
+        } else if (113 <= headingInt || headingInt < 158) {
+          heading = "NW";
+        } else if (158 <= headingInt || headingInt < 203) {
+          heading = "W";
+        } else if (203 <= headingInt || headingInt < 248) {
+          heading = "SW";
+        } else if (248 <= headingInt || headingInt < 293) {
+          heading = "S";
+        } else if (293 <= headingInt || headingInt < 338) {
+          heading = "SE";
+        }
 
         final Vehicle vehicle = new Vehicle().withId(id).withDirId(dirId).withIndex(ag.getIndex()).withLatitude(latitude)
-            .withLongitude(longitude).withRouteTag(routeTag).withSecsSinceReport(secsSinceReport).withSpeed(speed);
+            .withLongitude(longitude).withRouteTag(routeTag).withSecsSinceReport(secsSinceReport).withSpeed(speed)
+            .withHeading(heading);
         vehicles.add(vehicle);
       }
       return vehicles;

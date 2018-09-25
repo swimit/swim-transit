@@ -170,7 +170,7 @@
       .ledLabel {
         width: 100%;
         text-align: center;
-        color: white;
+        color: black;
       }
 
       .websiteLink{
@@ -243,10 +243,9 @@
                       #############################
                       # begin bus popover
                       popover: @mapboxPopover {
-                        backgroundColor: 'rgb(53, 61, 72)'
+                        backgroundColor: 'rgba(0, 0, 0, 0.25)'
                         popoverWidth: '240px'
-                        popoverHeight: '100px'
-
+                        popoverHeight: '432px'
                         body: @placard {
 
                           body: @div(class: busPopover) {
@@ -257,32 +256,45 @@
                               }
                               @div(class: ledIcon) {
                                 @style {
-                                  background-color: '#4171b8'
+                                  background-color: $colorAgency
                                 }
                                 @h3(class: ledLabel) {
                                   style: {
                                     padding-top: '2px'
                                   }
-                                  @img(src:'assets/images/swim-logo-bug-nobg.svg', height: '22px')
+                                  @text($eager($bus.routeTag))
                                 }
                               }
                               @h2(class: placardLabel) {
-                                @text([Agency: {$eager($bus.agency)}])
-                              }
-                              @div(class: ledIcon) {
                                 @style {
-                                  background-color: '#4d6069'
+                                  color: $colorAgency
                                 }
-                                @h3(class: ledLabel) {
-                                  @text($eager($bus.routeTag))
-                                }
+                                @text([bus #{$eager($bus.id)}])
                               }
                             }
                             @div(class: placardSubheader) {
                               @div(class: placardSubheaderItem) {
                                 transition: @transition(1000, linear)
+                                @style {
+                                  background-color: $colorAgency
+                                }
                                 @text([{$busSpeed} km/h])
                               }
+                              @div(class: placardSubheaderItem) {
+                                @style {
+                                  background-color: $colorAgency
+                                }
+                                @text([{$eager($bus.dirId)}])
+                              }
+                              @div(class: placardSubheaderItem) {
+                                @style {
+                                  background-color: $colorAgency
+                                }
+                                @text([{$eager($bus.heading)}])
+                              }
+                            }
+                            @div {
+                              @text([{$eager($bus.agency)}])
                             }
                           } # end div
                         } #end placard
@@ -300,7 +312,6 @@
             desiredWidth: '20%'
             minVisibleWidth: '200px'
             blueLabelColor: #000000 # @let($contrast('#5ab8ff'))
-
             @tile {
               backgroundColor: 'rgba(0, 0, 0, 0.25)'
               body: @pie {

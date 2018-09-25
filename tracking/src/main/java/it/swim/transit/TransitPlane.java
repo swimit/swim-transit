@@ -13,6 +13,7 @@ import it.swim.transit.model.Agency;
 import it.swim.transit.service.AgencyService;
 import it.swim.transit.service.CountryService;
 import it.swim.transit.service.StateService;
+import it.swim.transit.service.VehicleService;
 import recon.Form;
 import recon.Recon;
 import recon.Value;
@@ -34,6 +35,9 @@ public class TransitPlane extends AbstractPlane {
 
   @SwimRoute("/agency/:country/:state/:id")
   final ServiceType<?> agencyService = serviceClass(AgencyService.class);
+
+  @SwimRoute("/vehicle/:country/:state/:agency/:id")
+  final ServiceType<?> vehicleService = serviceClass(VehicleService.class);
 
   public static void main(String[] args) throws IOException {
     Value configValue = loadReconConfig(args);
