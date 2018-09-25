@@ -203,6 +203,22 @@
         overflow: hidden;
       }
 
+      .title, .placard {
+        overflow: hidden;
+      }
+
+      .tile:before, .placard:before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        filter: blur(5px);
+      }
+
       .popover-meter .fill {
         position: absolute;
         left: 0;
@@ -272,7 +288,7 @@
                       #############################
                       # begin bus popover
                       popover: @mapboxPopover {
-                        backgroundColor: 'rgba(0, 0, 0, 0.75)'
+                        backgroundColor: 'rgba(0, 0, 0, 0.25)'
                         popoverWidth: '240px'
                         popoverHeight: '432px'
                         body: @placard {
