@@ -20,6 +20,7 @@
         font-family: Lato, sans-serif;
         font-size: 12px;
         color: #4a4a4a;
+        background: #071013;
       }
 
       * {
@@ -186,6 +187,34 @@
         color: white;
       }
 
+      .placardLabel {
+        font-size: 14px;
+      }
+
+      .popover-meter {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        border-radius: 50%;
+        border-width: 1px;
+        border-style: solid;
+        overflow: hidden;
+      }
+
+      .popover-meter .fill {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .placard-agency {
+        font-size: 28px;
+        color: #a0a0a0;
+      }
     </style>
   </head>
 
@@ -243,7 +272,7 @@
                       #############################
                       # begin bus popover
                       popover: @mapboxPopover {
-                        backgroundColor: 'rgba(0, 0, 0, 0.25)'
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)'
                         popoverWidth: '240px'
                         popoverHeight: '432px'
                         body: @placard {
@@ -269,7 +298,20 @@
                                 @style {
                                   color: $colorAgency
                                 }
-                                @text([bus #{$eager($bus.id)}])
+                                @text('bus')
+                                @br {}
+                                @text([#{$eager($bus.id)}])
+                              }
+                              @div(class: 'popover-meter') {
+                                @style {
+                                  border-color: $colorAgency
+                                }
+                                @div(class: fill) {
+                                  @style {
+                                    background: $colorAgency
+                                    height: '50%'
+                                  }
+                                }
                               }
                             }
                             @div(class: placardSubheader) {
@@ -293,7 +335,7 @@
                                 @text([{$eager($bus.heading)}])
                               }
                             }
-                            @div {
+                            @div(class: 'placard-agency') {
                               @text([{$eager($bus.agency)}])
                             }
                           } # end div
@@ -375,6 +417,7 @@
                   legend: @text($value)
                   innerRadius: 10 + 7.5 * $value / $max($value) @pct
                   outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  arcColor: $colorRange.(3)
                 }
                 @wedge {
                   value: $totalCount.max - $totalCount.current
@@ -383,7 +426,7 @@
                   legendColor: '#989898'
                   innerRadius: 10 + 7.5 * $value / $max($value) @pct
                   outerRadius: 20 + 7.5 * $value / $max($value) @pct
-                  arcColor: $opacity($primaryHue($value), 0.5)
+                  arcColor: $opacity($colorRange.(3), 0.25)
                 }
               }
             } #end tile
