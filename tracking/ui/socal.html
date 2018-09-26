@@ -192,18 +192,6 @@
         font-size: 14px;
       }
 
-      .popover-meter {
-        position: relative;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        border-radius: 50%;
-        border-width: 1px;
-        border-style: solid;
-        overflow: hidden;
-      }
-
       .tile, .placard {
         overflow: hidden;
         background: rgba(0, 0, 0, 0.35) !important;
@@ -211,12 +199,21 @@
         -webkit-backdrop-filter: blur(3px);
       }
 
+      .popover-meter {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        border-radius: 50%;
+        border-width: 1px;
+        border-style: solid;
+        overflow: hidden;
+      }
+
       .popover-meter .fill {
-        position: absolute;
-        left: 0;
-        bottom: 0;
         width: 100%;
-        height: 100%;
       }
 
       .placard-route {
