@@ -282,6 +282,8 @@
                   agencyIndex: @let($eager($bus.index) % 8)
                   colorAgency: @let($colorRange.($agencyIndex))
                   busSpeed: @let($eager($bus.speed))
+                  busHeading: @let($eager($bus.heading))
+                  dirId: @let($eager($bus.dirId))
                   op: @let($busSpeed > 0 ? 1.0 : 0.2)
                   @mapboxPoint {
                     coordinates: {lng: $bus.longitude, lat: $bus.latitude}
@@ -347,7 +349,13 @@
                                 @style {
                                   background-color: $colorAgency
                                 }
-                                @text([{$eager($bus.heading)}])
+                                @text($dirId)
+                              }
+                              @div(class: placardSubheaderItem) {
+                                @style {
+                                  background-color: $colorAgency
+                                }
+                                @text($busHeading)
                               }
                             }
                             @div(class: 'placard-route') {

@@ -100,28 +100,35 @@ public class NextBusHttpAPI {
       for (int i = 0; i < nodes.getLength(); i++) {
         final String id = ((Element) nodes.item(i)).getAttribute("id").replace("\"", "");
         final String routeTag = ((Element) nodes.item(i)).getAttribute("routeTag").replace("\"", "");
-        final String dirId = ((Element) nodes.item(i)).getAttribute("dirTag").replace("\"", "");
         final float latitude = parseFloat(nodes, i, "lat");
         final float longitude = parseFloat(nodes, i, "lon");
         final int speed = parseInt(nodes, i, "speedKmHr");
         final int secsSinceReport = parseInt(nodes, i, "secsSinceReport");
+
+        final String dir = ((Element) nodes.item(i)).getAttribute("dirTag").replace("\"", "");
+        final String dirId;
+        if (dir != null) {
+          dirId = dir.contains("_0") ? "outbound" : "inbound";
+        } else {
+          dirId = "outbound";
+        }
         final int headingInt = parseInt(nodes, i, "heading");
         String heading = "";
         if (headingInt < 23 || headingInt >= 338) {
           heading = "E";
-        } else if (23 <= headingInt || headingInt < 68) {
+        } else if (23 <= headingInt && headingInt < 68) {
           heading = "NE";
-        } else if (68 <= headingInt || headingInt < 113) {
+        } else if (68 <= headingInt && headingInt < 113) {
           heading = "N";
-        } else if (113 <= headingInt || headingInt < 158) {
+        } else if (113 <= headingInt && headingInt < 158) {
           heading = "NW";
-        } else if (158 <= headingInt || headingInt < 203) {
+        } else if (158 <= headingInt && headingInt < 203) {
           heading = "W";
-        } else if (203 <= headingInt || headingInt < 248) {
+        } else if (203 <= headingInt && headingInt < 248) {
           heading = "SW";
-        } else if (248 <= headingInt || headingInt < 293) {
+        } else if (248 <= headingInt && headingInt < 293) {
           heading = "S";
-        } else if (293 <= headingInt || headingInt < 338) {
+        } else if (293 <= headingInt && headingInt < 338) {
           heading = "SE";
         }
 
