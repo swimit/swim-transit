@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import it.swim.transit.model.Agency;
+import it.swim.transit.model.Route;
+import it.swim.transit.model.Routes;
 import it.swim.transit.model.Vehicle;
 import it.swim.transit.model.Vehicles;
 import org.w3c.dom.Document;
@@ -32,28 +35,58 @@ public class NextBusHttpAPI {
   public void repeatSendVehicleInfo(List<Agency> agencies) {
     for (Agency agency : agencies) {
       ScheduledExecutorService run = Executors.newSingleThreadScheduledExecutor();
-      run.scheduleAtFixedRate(() -> sendVehicleInfo(agency.getUri(), agency)
+      run.scheduleAtFixedRate(() -> sendVehicleInfo(agency)
           , 10 + agency.getIndex(), 10, TimeUnit.SECONDS);
     }
   }
 
-  private Document parse(URL url) {
-    HttpURLConnection urlConnection;
+  public void sendRoutes(List<Agency> agencies) {
+    for (Agency agency: agencies) {
+      sendRoutes(agency);
+    }
+  }
+
+  private void sendVehicleInfo(Agency ag) {
+    final Vehicles vehicles = getVehicleLocations(ag);
+    if (vehicles != null && vehicles.getVehicles().size() > 0) {
+      final Value value = Form.forClass(Vehicles.class).mold(vehicles);
+      plane.command(ag.getUri(), "addVehicles", value);
+    }
+  }
+
+  private void sendRoutes(Agency agency) {
+    final Routes routes = getRoutes(agency);
+    if (routes != null) {
+      final Value value = Form.forClass(Routes.class).mold(routes);
+      plane.command(agency.getUri(), "addRoutes", value);
+    }
+  }
+
+  private Routes getRoutes(Agency ag) {
     try {
-      urlConnection = (HttpURLConnection) url.openConnection();
-      InputStream stream = urlConnection.getInputStream();
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document file = builder.parse(stream);
-      file.normalizeDocument();
-      return file;
-    } catch (Throwable e) {
-      // ignore errors for now
+      URL url = new URL(String.format(
+          "http://webservices.nextbus.com//service/publicXMLFeed?command=routeList&a=%s", ag.getId()));
+      Document file = parse(url);
+      if (file == null) {
+        return null;
+      }
+
+      NodeList nodes = file.getElementsByTagName("route");
+      final Routes routes = new Routes();
+      for (int i = 0; i < nodes.getLength(); i++) {
+        final String tag= ((Element) nodes.item(i)).getAttribute("tag").replace("\"", "");
+        final String title = ((Element) nodes.item(i)).getAttribute("title").replace("\"", "");
+        final Route route = new Route().withTag(tag).withTitle(title);
+        routes.add(route);
+      }
+      return routes;
+    } catch (Exception e) {
+      e.printStackTrace();
     }
     return null;
   }
 
-  public Vehicles getVehicleLocations(Agency ag) {
+  private Vehicles getVehicleLocations(Agency ag) {
     try {
       URL url = new URL(String.format(
           "http://webservices.nextbus.com//service/publicXMLFeed?command=vehicleLocations&a=%s&t=0", ag.getId()));
@@ -104,6 +137,23 @@ public class NextBusHttpAPI {
     return null;
   }
 
+  private Document parse(URL url) {
+    HttpURLConnection urlConnection;
+    try {
+      urlConnection = (HttpURLConnection) url.openConnection();
+      urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
+      InputStream stream = urlConnection.getInputStream();
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document file = builder.parse(new GZIPInputStream(stream));
+      file.normalizeDocument();
+      return file;
+    } catch (Throwable e) {
+      // ignore errors for now
+    }
+    return null;
+  }
+
   private int parseInt(NodeList nodes, int i, String property) {
     try {
       return Integer.parseInt(((Element) nodes.item(i)).getAttribute(property).replace("\"", ""));
@@ -120,11 +170,4 @@ public class NextBusHttpAPI {
     }
   }
 
-  private void sendVehicleInfo(String node, Agency ag) {
-    final Vehicles vehicles = getVehicleLocations(ag);
-    if (vehicles != null && vehicles.getVehicles().size() > 0) {
-      final Value value = Form.forClass(Vehicles.class).mold(vehicles);
-      plane.command(node, "input", value);
-    }
-  }
 }

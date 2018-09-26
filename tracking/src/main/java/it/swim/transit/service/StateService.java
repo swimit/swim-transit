@@ -22,14 +22,14 @@ public class StateService extends AbstractService {
   public ValueLane<Value> count = valueLane();
 
   @SwimLane("agencyCount")
-  public MapLane<Agency, Integer> agencyCount = mapLane().keyClass(Agency.class).valueClass(Integer.class);
+  public MapLane<Agency, Integer> agencyCount = mapLane().keyClass(Agency.class).valueClass(Integer.class).isTransient(true);
 
   @SwimLane("joinAgencyCount")
   public JoinValueLane<Agency, Integer> joinAgencyCount = joinValueLane().keyClass(Agency.class).valueClass(Integer.class)
       .didUpdate((Agency key, Integer newCount, Integer prevCount) -> updateCounts(key, newCount));
 
   @SwimLane("vehicles")
-  public MapLane<String, Vehicle> vehicles = mapLane().keyClass(String.class).valueClass(Vehicle.class);
+  public MapLane<String, Vehicle> vehicles = mapLane().keyClass(String.class).valueClass(Vehicle.class).isTransient(true);
 
   @SwimLane("joinAgencyVehicles")
   public JoinMapLane<Agency, String, Vehicle> joinAgencyVehicles = joinMapLane().linkClass(Agency.class).keyClass(String.class)
@@ -40,7 +40,7 @@ public class StateService extends AbstractService {
   public ValueLane<Float> speed = valueLane().valueClass(Float.class);
 
   @SwimLane("agencySpeed")
-  public MapLane<Agency, Float> agencySpeed = mapLane().keyClass(Agency.class).valueClass(Float.class);
+  public MapLane<Agency, Float> agencySpeed = mapLane().keyClass(Agency.class).valueClass(Float.class).isTransient(true);
 
   @SwimLane("joinStateSpeed")
   public JoinValueLane<Agency, Float> joinAgencySpeed = joinValueLane().keyClass(Agency.class).valueClass(Float.class)

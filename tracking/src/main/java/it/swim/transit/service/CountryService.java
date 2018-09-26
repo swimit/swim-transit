@@ -32,7 +32,7 @@ public class CountryService extends AbstractService {
       .didUpdate((Value key, Value newCount, Value prevCount) -> updateCounts(key.stringValue(), newCount));
 
   @SwimLane("vehicles")
-  public MapLane<String, Vehicle> vehicles = mapLane().keyClass(String.class).valueClass(Vehicle.class);
+  public MapLane<String, Vehicle> vehicles = mapLane().keyClass(String.class).valueClass(Vehicle.class).isTransient(true);
 
   @SwimLane("joinAgencyVehicles")
   public JoinMapLane<Value, String, Vehicle> joinAgencyVehicles = joinMapLane().keyClass(String.class)

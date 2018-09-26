@@ -1,6 +1,8 @@
 package it.swim.transit.model;
 
+import recon.Form;
 import recon.ReconName;
+import recon.Value;
 
 import java.util.Objects;
 
@@ -17,12 +19,13 @@ public class Vehicle {
   private int secsSinceReport = -1;
   private int index = 0;
   private String heading = "";
+  private String routeTitle = "";
 
   public Vehicle() {
   }
 
   public Vehicle(String id, String agency, String routeTag, String dirId, float latitude, float longitude,
-                 int speed, int secsSinceReport, int index, String heading) {
+                 int speed, int secsSinceReport, int index, String heading, String routeTitle) {
     this.id = id;
     this.agency = agency;
     this.routeTag = routeTag;
@@ -33,6 +36,7 @@ public class Vehicle {
     this.secsSinceReport = secsSinceReport;
     this.index = index;
     this.heading = heading;
+    this.routeTitle = routeTitle;
   }
 
   public String getId() {
@@ -40,7 +44,7 @@ public class Vehicle {
   }
 
   public Vehicle withId(String id) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public String getAgency() {
@@ -48,7 +52,7 @@ public class Vehicle {
   }
 
   public Vehicle withAgency(String agency) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public String getRouteTag() {
@@ -56,7 +60,7 @@ public class Vehicle {
   }
 
   public Vehicle withRouteTag(String routeTag) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public String getDirId() {
@@ -64,7 +68,7 @@ public class Vehicle {
   }
 
   public Vehicle withDirId(String dirId) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public float getLatitude() {
@@ -72,7 +76,7 @@ public class Vehicle {
   }
 
   public Vehicle withLatitude(float latitude) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public float getLongitude() {
@@ -80,7 +84,7 @@ public class Vehicle {
   }
 
   public Vehicle withLongitude(float longitude) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public int getSpeed() {
@@ -88,7 +92,7 @@ public class Vehicle {
   }
 
   public Vehicle withSpeed(int speed) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public int getSecsSinceReport() {
@@ -96,7 +100,7 @@ public class Vehicle {
   }
 
   public Vehicle withSecsSinceReport(int secsSinceReport) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public int getIndex() {
@@ -104,7 +108,7 @@ public class Vehicle {
   }
 
   public Vehicle withIndex(int index) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   public String getHeading() {
@@ -112,7 +116,15 @@ public class Vehicle {
   }
 
   public Vehicle withHeading(String heading) {
-    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
+  }
+
+  public String getRouteTitle() {
+    return routeTitle;
+  }
+
+  public Vehicle withRouteTitle(String routeTitle) {
+    return new Vehicle(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   @Override
@@ -129,12 +141,13 @@ public class Vehicle {
         Objects.equals(agency, vehicle.agency) &&
         Objects.equals(routeTag, vehicle.routeTag) &&
         Objects.equals(dirId, vehicle.dirId) &&
-        Objects.equals(heading, vehicle.heading);
+        Objects.equals(heading, vehicle.heading) &&
+        Objects.equals(routeTitle, vehicle.routeTitle);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading);
+    return Objects.hash(id, agency, routeTag, dirId, latitude, longitude, speed, secsSinceReport, index, heading, routeTitle);
   }
 
   @Override
@@ -150,6 +163,11 @@ public class Vehicle {
         ", secsSinceReport=" + secsSinceReport +
         ", index=" + index +
         ", heading=" + heading +
+        ", routeTitle =" + routeTitle +
         '}';
+  }
+
+  public Value toValue() {
+    return Form.forClass(Vehicle.class).mold(this);
   }
 }

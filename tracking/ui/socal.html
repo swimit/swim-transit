@@ -106,7 +106,7 @@
         flex-direction: column;
         flex-grow: 1;
       }
-      .busPhaseCharts {
+      .busCharts {
         width: 224px;
         height: 300px;
         overflow-x: auto;
@@ -114,6 +114,7 @@
       .chartTitle {
         width: 100%;
         font-weight: 300;
+        font-size: 10px;
       }
       .chartContainer {
         width: 100%;
@@ -227,8 +228,12 @@
         height: 100%;
       }
 
+      .placard-route {
+        font-size: 16px;
+        color: #a0a0a0;
+      }
       .placard-agency {
-        font-size: 28px;
+        font-size: 14px;
         color: #a0a0a0;
       }
     </style>
@@ -325,7 +330,7 @@
                                 @div(class: fill) {
                                   @style {
                                     background: $colorAgency
-                                    height: '50%'
+                                    height: [{($bus.speed/130)*100}%]
                                   }
                                 }
                               }
@@ -342,17 +347,95 @@
                                 @style {
                                   background-color: $colorAgency
                                 }
-                                @text([{$eager($bus.dirId)}])
-                              }
-                              @div(class: placardSubheaderItem) {
-                                @style {
-                                  background-color: $colorAgency
-                                }
                                 @text([{$eager($bus.heading)}])
                               }
                             }
+                            @div(class: 'placard-route') {
+                              @br {}
+                              @text([{$eager($bus.routeTitle)}])
+                            }
                             @div(class: 'placard-agency') {
+                              @br {}
                               @text([{$eager($bus.agency)}])
+                            }
+                            @div(class: busCharts) {
+                              speeds: @link(node: $busId, lane: 'speeds', type: map)
+                              accelerations: @link(node: $busId, lane: 'accelerations', type: map)
+
+                              #############################
+                              # begin chart
+                              @h3(class: chartTitle) {
+                                 @br {}
+                                 @br {}
+                                @text(Speed)
+                              }
+                              @div(class: chartContainer) {
+                                @chart {
+                                  @plot(type: line) {
+                                    lineColor: $colorAgency
+                                    lineWidth: '2px'
+                                    @each(st: $speeds.*:) {
+                                      key: $st
+                                      @plotPoint {
+                                        sample: @let($speeds.($st))
+                                        x: $st
+                                        y: $sample
+                                      }
+                                    }
+                                  }
+                                  top: {
+                                    gutter: '5px'
+                                  }
+                                  right: {
+                                    gutter: '10px'
+                                  }
+                                  bottom: @axis(type: time) {
+                                    gutter: '20px'
+                                    hidden: true
+                                  }
+                                  left: @axis(type: linear) {
+                                    hidden: true
+                                    gutter: '10px'
+                                  }
+                                }
+                              }
+                              @h3(class: chartTitle) {
+                                 @br {}
+                                 @br {}
+                                @text(Acceleration)
+                              }
+                              @div(class: chartContainer) {
+                                @chart {
+                                  @plot(type: line) {
+                                    lineColor: $colorAgency
+                                    lineWidth: '2px'
+                                    @each(at: $accelerations.*:) {
+                                      key: $at
+                                      @plotPoint {
+                                        sample: @let($accelerations.($at))
+                                        x: $at
+                                        y: $sample
+                                      }
+                                    }
+                                  }
+                                  top: {
+                                    gutter: '5px'
+                                  }
+                                  right: {
+                                    gutter: '10px'
+                                  }
+                                  bottom: @axis(type: time) {
+                                    gutter: '20px'
+                                    hidden: true
+                                  }
+                                  left: @axis(type: linear) {
+                                    hidden: true
+                                    gutter: '10px'
+                                  }
+                                }
+                              }
+                              # end chart
+                              #############################
                             }
                           } # end div
                         } #end placard

@@ -57,14 +57,16 @@ public class TransitPlane extends AbstractPlane {
   private static void startAgencies(SwimPlane planeContext) {
     List<Agency> agencies = loadAgencies();
     for (Agency agency : agencies) {
-      planeContext.command(agency.getUri(), "addInfo", Form.forClass(Agency.class).mold(agency));
+      planeContext.command(agency.getUri(), "addInfo", agency.toValue());
       try {
         Thread.sleep(100);
       } catch (InterruptedException e) {
 
       }
     }
-    new NextBusHttpAPI(planeContext).repeatSendVehicleInfo(agencies);
+    final NextBusHttpAPI nextBusHttpAPI = new NextBusHttpAPI(planeContext);
+    nextBusHttpAPI.sendRoutes(agencies);
+    nextBusHttpAPI.repeatSendVehicleInfo(agencies);
   }
 
   private static List<Agency> loadAgencies() {
