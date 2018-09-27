@@ -287,7 +287,7 @@
                       popover: @mapboxPopover {
                         backgroundColor: 'rgba(0, 0, 0, 0.25)'
                         popoverWidth: '240px'
-                        popoverHeight: '380px'
+                        popoverHeight: '400px'
                         body: @placard {
 
                           body: @div(class: busPopover) {
@@ -326,6 +326,8 @@
                                   }
                                 }
                               }
+                            }
+                            @div(class: placardSubheader) {
                             }
                             @div(class: placardSubheader) {
                               @div(class: placardSubheaderItem) {
@@ -451,6 +453,7 @@
             desiredWidth: '20%'
             minVisibleWidth: '200px'
             blueLabelColor: #000000 # @let($contrast('#5ab8ff'))
+            transition: @transition(1000, linear)
             @tile {
               backgroundColor: 'rgba(0, 0, 0, 0.25)'
               body: @pie {
