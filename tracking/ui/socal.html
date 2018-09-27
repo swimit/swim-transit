@@ -265,6 +265,7 @@
               type: circle
               circleOpacity: opacity
               circleColor: color
+              transition: @transition(10000, linear)
               @each(busId: $buses.*:) {
                 key: $busId
                 @mapboxLayer {
@@ -462,7 +463,7 @@
                 titleColor: '#bfbfbf'
                 @each(agSp: $agencySpeed.*:) {
                   @wedge {
-                    value: @let($agencySpeed.($agSp))
+                    value: @let($agencySpeed.($agSp) + 0.1)
                     appLabel: $agSp.id
                     agencyIndex: $agSp.index % 8
                     primaryColor: $colorRange.($agencyIndex)
