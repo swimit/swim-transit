@@ -585,7 +585,7 @@
         const dateElem = document.querySelector('.subheaderNavigation .date');
         if(timerElem && dateElem) {
           setInterval(function() {
-            date = calcTime('Los Angeles', '-8');
+            date = calcTime('Los Angeles', '-7');
             timerElem.innerText = date[1];
             dateElem.innerText = date[0];
           }, 1000);
