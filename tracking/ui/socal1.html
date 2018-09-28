@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Real-time Transit | SWIM</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.css" rel="stylesheet"/>
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.js"></script>
+    <script src="https://apis.google.com/js/platform.js"></script>
+    <script src="assets/swim-app1.min.js" swim-app></script>
+
+    <style>
+      html, body {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        font-family: Lato, sans-serif;
+        font-size: 12px;
+        color: #4a4a4a;
+        background: #071013;
+      }
+
+      * {
+        margin: 0px;
+        padding: 0px;
+      }
+      .logoContainer {
+        display: flex;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        height: 45px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+      }
+      .logoContainer h4 {
+        font-size: 23px;
+        font-weight: 300;
+        align-self: flex-end;
+        color: #bfbfbf;
+      }
+      .swim-log {
+        margin-left: 16px;
+        margin-right: 10px;
+        height: 30px;
+        opacity: 0.75;
+      }
+      #title {
+        position: absolute;
+        top: 4px;
+        left: 12px;
+        margin: 0;
+        font-size: 36px;
+        font-weight: 400;
+        color: #3d484e;
+        pointer-events: none;
+      }
+      small {
+        font-size: 14px;
+        font-weight: 300;
+        margin-left: 0px;
+      }
+      #main {
+        display: flex;
+        flex-grow: 1;
+        position: relative;
+      }
+      .subheaderNavigation {
+        position: absolute;
+        left: 15px;
+        top: 50px;
+        display: flex;
+        flex-direction: column;
+        color: #8f8f8f;
+        font-size: 15;
+      }
+      .subheaderNavigation .timer, .subheaderNavigation .date {
+        padding-top: 5px;
+        color: #767676;
+      }
+      .subheaderButton {
+        border-radius: 5px;
+        background-color: rgb(53, 61, 72);
+        color: white;
+        padding: 4px 15px;
+        font-size: 12px;
+        margin: 0px 8px 0 0;
+        font-weight: normal;
+      }
+      .busPopover {
+        color: white;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .busColumns {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .busTree {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+      .busCharts {
+        width: 224px;
+        height: 300px;
+        overflow-x: auto;
+      }
+      .chartTitle {
+        width: 100%;
+        font-weight: 300;
+        font-size: 10px;
+      }
+      .chartContainer {
+        width: 100%;
+        height: 60px;
+      }
+      .busCircle {
+        border-radius: 50%;
+        flex-grow: 0;
+        width: 97px;
+        height: 97px;
+        margin: 5px auto;
+        display: flex;
+        align-items: center;
+      }
+      .busCircleLabel {
+        text-align: center;
+        width: 100%;
+      }
+      .placardHeader {
+        display: flex;
+        flex-direction: row;
+        margin: 3px 0px;
+      }
+      .placardSubheader {
+        display: flex;
+        flex-direction: row;
+        margin: 11px 0px 11px 0px;
+      }
+      .placardSubheaderItem {
+        border-radius: 8px;
+        background-color: #4171b8;
+        width: 50px;
+        height: 15px;
+        text-align: center;
+        line-height: 15px;
+        font-size: 9px;
+        margin: 0px 8px 0 0;
+        color: #000000;
+      }
+      .placardLabel {
+        font-size: 12px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        padding-left: 10px;
+      }
+      .ledIcon {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        border-radius: 50%;
+      }
+      .ledLabel {
+        width: 100%;
+        text-align: center;
+        color: black;
+      }
+
+      .websiteLink{
+        position: absolute;
+        bottom: 35px;
+        left: 12px;
+        color: #bfbfbf;
+        text-decoration: none;
+        font-size: 18px;
+      }
+
+      .websiteLink:hover {
+        color: white;
+      }
+
+      .placardLabel {
+        font-size: 14px;
+      }
+
+      .tile, .placard {
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.35) !important;
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+      }
+
+      .popover-meter {
+        position: relative;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        border-radius: 50%;
+        border-width: 1px;
+        border-style: solid;
+        overflow: hidden;
+      }
+
+      .popover-meter .fill {
+        width: 100%;
+      }
+
+      .placard-route {
+        font-size: 16px;
+        color: #a0a0a0;
+      }
+      .placard-agency {
+        font-size: 14px;
+        color: #a0a0a0;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <script type="text/recon">
+      #############################
+      # begin main body
+      @div {
+        id: 'main'
+        style: {
+          display: flex
+          flex-grow: 1
+        }
+
+        #######################
+        # begin map board
+        @board {
+          id: board
+
+          #host: 'swim://localhost:8090'
+          host: 'swim://transit.swim.services'
+          node: '/state/US/S-CA'
+          buses: @link(lane: 'vehicles', type: map)
+          primaryColor: '#18cae6'
+          colorRange: {0: '#00A6ED', 1: '#7ED321', 2:'#C200FB', 3:'#50E3C2', 4:'#57B8FF', 5:'#5AFF15', 6:'#55DDE0', 7:'#F7AEF8'}
+
+          surface: @mapboxMap {
+            accessToken: 'pk.eyJ1Ijoic3dpbWl0IiwiYSI6ImNqY2c3NXZkYzFoa2QycXQ1eXl1Mnd6M3EifQ.qpRE7xC08AyZfxJ56LoN7w'
+            style: 'mapbox://styles/swimit/cjmcivx8t8yul2sp7neiwgy8g'
+            center: {lng: -118, lat:  33.95}
+            pitch: 45
+            zoom: 9.7
+            #############################
+            # create a mapbox layer which will hold all the buses
+            @mapboxLayer {
+              type: circle
+              circleOpacity: opacity
+              circleColor: color
+              @each(busId: $buses.*:) {
+                key: $busId
+                @mapboxLayer {
+                  bus: @let($buses.($busId))
+                  agencyIndex: @let($eager($bus.index) % 8)
+                  colorAgency: @let($colorRange.($agencyIndex))
+                  busSpeed: @let($eager($bus.speed))
+                  busHeading: @let($eager($bus.heading))
+                  dirId: @let($eager($bus.dirId))
+                  op: @let($busSpeed > 0 ? 1.0 : 0.2)
+                  @mapboxPoint {
+                    coordinates: {lng: $bus.longitude, lat: $bus.latitude}
+                    properties: {
+                      color: $colorAgency
+                      opacity: $max(0.15, $min(0.85, $op))
+                    }
+                    click: {
+                      #############################
+                      # begin bus popover
+                      popover: @mapboxPopover {
+                        backgroundColor: 'rgba(0, 0, 0, 0.25)'
+                        popoverWidth: '240px'
+                        popoverHeight: '400px'
+                        body: @placard {
+
+                          body: @div(class: busPopover) {
+                            @div(class: placardHeader) {
+                              style: {
+                                display: flex
+                                flex-direction: row
+                              }
+                              @div(class: ledIcon) {
+                                @style {
+                                  background-color: $colorAgency
+                                }
+                                @h3(class: ledLabel) {
+                                  style: {
+                                    padding-top: '2px'
+                                  }
+                                  @text($eager($bus.routeTag))
+                                }
+                              }
+                              @h2(class: placardLabel) {
+                                @style {
+                                  color: $colorAgency
+                                }
+                                @text('bus')
+                                @br {}
+                                @text([#{$eager($bus.id)}])
+                              }
+                              @div(class: 'popover-meter') {
+                                @style {
+                                  border-color: $colorAgency
+                                }
+                                @div(class: fill) {
+                                  @style {
+                                    background: $colorAgency
+                                    height: [{($bus.speed/130)*100}%]
+                                  }
+                                }
+                              }
+                            }
+                            @div(class: placardSubheader) {
+                            }
+                            @div(class: placardSubheader) {
+                              @div(class: placardSubheaderItem) {
+                                transition: @transition(1000, linear)
+                                @style {
+                                  background-color: $colorAgency
+                                }
+                                @text([{$busSpeed} km/h])
+                              }
+                              @div(class: placardSubheaderItem) {
+                                @style {
+                                  background-color: $colorAgency
+                                }
+                                @text($dirId)
+                              }
+                              @div(class: placardSubheaderItem) {
+                                @style {
+                                  background-color: $colorAgency
+                                }
+                                @text($busHeading)
+                              }
+                            }
+                            @div(class: 'placard-route') {
+                              @text([{$eager($bus.routeTitle)}])
+                            }
+                            @div(class: 'placard-agency') {
+                              @br {}
+                              @text([{$eager($bus.agency)}])
+                            }
+                            @div(class: busCharts) {
+                              speeds: @link(node: $busId, lane: 'speeds', type: map)
+                              accelerations: @link(node: $busId, lane: 'accelerations', type: map)
+
+                              #############################
+                              # begin chart
+                              @h3(class: chartTitle) {
+                                 @br {}
+                                 @br {}
+                                @text(Speed)
+                              }
+                              @div(class: chartContainer) {
+                                @chart {
+                                  @plot(type: line) {
+                                    lineColor: $colorAgency
+                                    lineWidth: '2px'
+                                    @each(st: $speeds.*:) {
+                                      key: $st
+                                      @plotPoint {
+                                        sample: @let($speeds.($st))
+                                        x: $st
+                                        y: $sample
+                                      }
+                                    }
+                                  }
+                                  top: {
+                                    gutter: '5px'
+                                  }
+                                  right: {
+                                    gutter: '10px'
+                                  }
+                                  bottom: @axis(type: time) {
+                                    gutter: '20px'
+                                    hidden: true
+                                  }
+                                  left: @axis(type: linear) {
+                                    hidden: true
+                                    gutter: '10px'
+                                  }
+                                }
+                              }
+                              @h3(class: chartTitle) {
+                                 @br {}
+                                 @br {}
+                                @text(Acceleration)
+                              }
+                              @div(class: chartContainer) {
+                                @chart {
+                                  @plot(type: line) {
+                                    lineColor: $colorAgency
+                                    lineWidth: '2px'
+                                    @each(at: $accelerations.*:) {
+                                      key: $at
+                                      @plotPoint {
+                                        sample: @let($accelerations.($at))
+                                        x: $at
+                                        y: $sample
+                                      }
+                                    }
+                                  }
+                                  top: {
+                                    gutter: '5px'
+                                  }
+                                  right: {
+                                    gutter: '10px'
+                                  }
+                                  bottom: @axis(type: time) {
+                                    gutter: '20px'
+                                    hidden: true
+                                  }
+                                  left: @axis(type: linear) {
+                                    hidden: true
+                                    gutter: '10px'
+                                  }
+                                }
+                              }
+                              # end chart
+                              #############################
+                            }
+                          } # end div
+                        } #end placard
+                      } #end bus popover
+                    } # end click
+                  } #end mappoint
+                } # end layer
+              } # end each
+            }
+          }
+
+          # define what appears inside the right totem sidebar
+          right: @totem {
+            spacing: '10px'
+            desiredWidth: '20%'
+            minVisibleWidth: '200px'
+            blueLabelColor: #000000 # @let($contrast('#5ab8ff'))
+            transition: @transition(1000, linear)
+            @tile {
+              backgroundColor: 'rgba(0, 0, 0, 0.25)'
+              body: @pie {
+                agencySpeed: @link(lane: 'agencySpeed', type: map)
+                title: 'Speed (km/h)'
+                titleColor: '#bfbfbf'
+                @each(agSp: $agencySpeed.*:) {
+                  @wedge {
+                    value: @let($agencySpeed.($agSp) + 0.1)
+                    appLabel: $agSp.id
+                    agencyIndex: $agSp.index % 8
+                    primaryColor: $colorRange.($agencyIndex)
+                    label: @text($round($value))
+                    labelColor: $blueLabelColor
+                    tickColor: '#B7B7B7'
+                    legendColor: '#989898'
+                    legend: @text([{$eager($appLabel)}])
+                    innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                    outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  }
+                }
+              }
+            } #end tile
+
+            @tile {
+              backgroundColor: 'rgba(0, 0, 0, 0.25)'
+              body: @pie {
+                agencyCounts: @link(lane: 'agencyCount', type: map)
+                title: 'Count'
+                titleColor: '#bfbfbf'
+                @each(agencyCount: $agencyCounts.*:) {
+                  @wedge {
+                    value: @let($agencyCounts.($agencyCount))
+                    appLabel: $agencyCount.id
+                    agencyIndex: $agencyCount.index % 8
+                    primaryColor: $colorRange.($agencyIndex)
+                    label: @text($value)
+                    labelColor: $blueLabelColor
+                    tickColor: '#B7B7B7'
+                    legendColor: '#989898'
+                    legend: @text([{$eager($appLabel)}])
+                    innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                    outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  }
+                }
+              }
+            } #end tile
+
+            @tile {
+              backgroundColor: 'rgba(0, 0, 0, 0.25)'
+              body:  @pie {
+                totalCount: @link(lane: 'count', type: value)
+                title: 'Total Count'
+                titleColor: '#bfbfbf'
+                @wedge {
+                  value: $totalCount.current
+                  label: @text($percent($value, $total))
+                  labelColor: $blueLabelColor
+                  tickColor: '#B7B7B7'
+                  legendColor: '#989898'
+                  legend: @text($value)
+                  innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                  outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  arcColor: $colorRange.(3)
+                }
+                @wedge {
+                  value: $totalCount.max - $totalCount.current
+                  labelColor: $blueLabelColor
+                  tickColor: '#B7B7B7'
+                  legendColor: '#989898'
+                  innerRadius: 10 + 7.5 * $value / $max($value) @pct
+                  outerRadius: 20 + 7.5 * $value / $max($value) @pct
+                  arcColor: $opacity($colorRange.(3), 0.25)
+                }
+              }
+            } #end tile
+          } # end totem
+        } # end board
+        # end map board
+        #######################
+
+        #############################
+        # top logo
+        @div(class: 'logoContainer') {
+          @a(href: "https://www.swim.ai") {
+            @img(
+              class: swim-log
+              src: 'assets/images/SWIM-logo-white.svg'
+            )
+          }
+          @h4 [SoCal Transit]
+        } #end logo container
+
+        #######################
+        # subheader nav bar
+        @div(class: subheaderNavigation) {
+          @div 'Southern California'
+          @div(class: timer) {}
+          @div(class: date) {}
+          @div(class: icon) {}
+        } # end subheaderNavigation
+
+        #######################
+        # powered by swim footer logo
+        @a( class: websiteLink, href: "https://developer.swim.ai") {
+          @text('swim.ai')
+        }
+      } #end div
+      # end main body
+      #######################
+    </script>
+
+    <script>
+      if (navigator.userAgent.indexOf("Chrome") != -1 || navigator.userAgent.indexOf("Firefox") != -1 ) {
+        var e = ["%c Created by SWIM team at SWIM.AI Inc. %c @SWIM.ai %c https://developer.swim.ai", "display:block; padding:5px; background: #4171B8; color:#fff;", "display:block; padding:5px; background: #6ccbf4; color:#fff;", "display:block; padding:5px;"];
+        console.info.apply(console, e)
+      }
+
+      function calcTime(city, offset) {
+        d = new Date();
+        utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+        nd = new Date(utc + (3600000*offset));
+        split = nd.toLocaleString().split(', ');
+        return split;
+      }
+
+      document.addEventListener('DOMContentLoaded', ()=> {
+
+        const timerElem = document.querySelector('.subheaderNavigation .timer');
+        const dateElem = document.querySelector('.subheaderNavigation .date');
+        if(timerElem && dateElem) {
+          setInterval(function() {
+            date = calcTime('Los Angeles', '-8');
+            timerElem.innerText = date[1];
+            dateElem.innerText = date[0];
+          }, 1000);
+        }
+
+      }, false);
+
+    </script>
+  </body>
+</html>
