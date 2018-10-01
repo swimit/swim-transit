@@ -371,7 +371,7 @@
                               }
                               @div(class: chartContainer) {
                                 @chart {
-                                  @plot(type: line) {
+                                  @plotLine {
                                     lineColor: $colorAgency
                                     lineWidth: '2px'
                                     @each(st: $speeds.*:) {
@@ -406,7 +406,7 @@
                               }
                               @div(class: chartContainer) {
                                 @chart {
-                                  @plot(type: line) {
+                                  @plotLine {
                                     lineColor: $colorAgency
                                     lineWidth: '2px'
                                     @each(at: $accelerations.*:) {
