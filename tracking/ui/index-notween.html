@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Real-time Transit | SWIM</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-    <link rel="icon" type="image/png" href="assets/favicon.png" />
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
-    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.css" rel="stylesheet"/>
-    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.js"></script>
-    <script src="https://apis.google.com/js/platform.js"></script>
-    <script src="assets/swim-app1.min.js" swim-app></script>
+<head>
+  <title>Real-time Transit | SWIM</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.css" rel="stylesheet"/>
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.43.0/mapbox-gl.js"></script>
+  <script src="https://apis.google.com/js/platform.js"></script>
+  <script src="assets/swim-app.min.js" swim-app></script>
 
-    <style>
+  <style>
       html, body {
         display: flex;
         width: 100%;
@@ -227,11 +227,11 @@
         color: #a0a0a0;
       }
     </style>
-  </head>
+</head>
 
-  <body>
+<body>
 
-    <script type="text/recon">
+<script type="text/recon">
       #############################
       # begin main body
       @div {
@@ -267,7 +267,7 @@
               circleColor: color
               @each(busId: $buses.*:) {
                 key: $busId
-                @mapboxLayer {
+                @mapboxPoint {
                   bus: @let($buses.($busId))
                   agencyIndex: @let($eager($bus.index) % 8)
                   colorAgency: @let($colorRange.($agencyIndex))
@@ -275,173 +275,171 @@
                   busHeading: @let($eager($bus.heading))
                   dirId: @let($eager($bus.dirId))
                   op: @let($busSpeed > 0 ? 1.0 : 0.2)
-                  @mapboxPoint {
-                    coordinates: {lng: $bus.longitude, lat: $bus.latitude}
-                    properties: {
-                      color: $colorAgency
-                      opacity: $max(0.15, $min(0.85, $op))
-                    }
-                    click: {
-                      #############################
-                      # begin bus popover
-                      popover: @mapboxPopover {
-                        backgroundColor: 'rgba(0, 0, 0, 0.25)'
-                        popoverWidth: '240px'
-                        popoverHeight: '400px'
-                        body: @placard {
+                  coordinates: {lng: $bus.longitude, lat: $bus.latitude}
+                  properties: {
+                    color: $colorAgency
+                    opacity: $max(0.15, $min(0.85, $op))
+                  }
+                  click: {
+                    #############################
+                    # begin bus popover
+                    popover: @mapboxPopover {
+                      backgroundColor: 'rgba(0, 0, 0, 0.25)'
+                      popoverWidth: '240px'
+                      popoverHeight: '400px'
+                      body: @placard {
 
-                          body: @div(class: busPopover) {
-                            @div(class: placardHeader) {
-                              style: {
-                                display: flex
-                                flex-direction: row
+                        body: @div(class: busPopover) {
+                          @div(class: placardHeader) {
+                            style: {
+                              display: flex
+                              flex-direction: row
+                            }
+                            @div(class: ledIcon) {
+                              @style {
+                                background-color: $colorAgency
                               }
-                              @div(class: ledIcon) {
-                                @style {
-                                  background-color: $colorAgency
+                              @h3(class: ledLabel) {
+                                style: {
+                                  padding-top: '2px'
                                 }
-                                @h3(class: ledLabel) {
-                                  style: {
-                                    padding-top: '2px'
-                                  }
-                                  @text($eager($bus.routeTag))
-                                }
-                              }
-                              @h2(class: placardLabel) {
-                                @style {
-                                  color: $colorAgency
-                                }
-                                @text('bus')
-                                @br {}
-                                @text([#{$eager($bus.id)}])
-                              }
-                              @div(class: 'popover-meter') {
-                                @style {
-                                  border-color: $colorAgency
-                                }
-                                @div(class: fill) {
-                                  @style {
-                                    background: $colorAgency
-                                    height: [{($bus.speed/130)*100}%]
-                                  }
-                                }
+                                @text($eager($bus.routeTag))
                               }
                             }
-                            @div(class: placardSubheader) {
-                            }
-                            @div(class: placardSubheader) {
-                              @div(class: placardSubheaderItem) {
-                                transition: @transition(1000, linear)
-                                @style {
-                                  background-color: $colorAgency
-                                }
-                                @text([{$busSpeed} km/h])
+                            @h2(class: placardLabel) {
+                              @style {
+                                color: $colorAgency
                               }
-                              @div(class: placardSubheaderItem) {
-                                @style {
-                                  background-color: $colorAgency
-                                }
-                                @text($dirId)
-                              }
-                              @div(class: placardSubheaderItem) {
-                                @style {
-                                  background-color: $colorAgency
-                                }
-                                @text($busHeading)
-                              }
-                            }
-                            @div(class: 'placard-route') {
-                              @text([{$eager($bus.routeTitle)}])
-                            }
-                            @div(class: 'placard-agency') {
+                              @text('bus')
                               @br {}
-                              @text([{$eager($bus.agency)}])
+                              @text([#{$eager($bus.id)}])
                             }
-                            @div(class: busCharts) {
-                              speeds: @link(node: $busId, lane: 'speeds', type: map)
-                              accelerations: @link(node: $busId, lane: 'accelerations', type: map)
+                            @div(class: 'popover-meter') {
+                              @style {
+                                border-color: $colorAgency
+                              }
+                              @div(class: fill) {
+                                @style {
+                                  background: $colorAgency
+                                  height: [{($bus.speed/130)*100}%]
+                                }
+                              }
+                            }
+                          }
+                          @div(class: placardSubheader) {
+                          }
+                          @div(class: placardSubheader) {
+                            @div(class: placardSubheaderItem) {
+                              transition: @transition(1000, linear)
+                              @style {
+                                background-color: $colorAgency
+                              }
+                              @text([{$busSpeed} km/h])
+                            }
+                            @div(class: placardSubheaderItem) {
+                              @style {
+                                background-color: $colorAgency
+                              }
+                              @text($dirId)
+                            }
+                            @div(class: placardSubheaderItem) {
+                              @style {
+                                background-color: $colorAgency
+                              }
+                              @text($busHeading)
+                            }
+                          }
+                          @div(class: 'placard-route') {
+                            @text([{$eager($bus.routeTitle)}])
+                          }
+                          @div(class: 'placard-agency') {
+                            @br {}
+                            @text([{$eager($bus.agency)}])
+                          }
+                          @div(class: busCharts) {
+                            speeds: @link(node: $busId, lane: 'speeds', type: map)
+                            accelerations: @link(node: $busId, lane: 'accelerations', type: map)
 
-                              #############################
-                              # begin chart
-                              @h3(class: chartTitle) {
-                                 @br {}
-                                 @br {}
-                                @text(Speed)
-                              }
-                              @div(class: chartContainer) {
-                                @chart {
-                                  @plot(type: line) {
-                                    lineColor: $colorAgency
-                                    lineWidth: '2px'
-                                    @each(st: $speeds.*:) {
-                                      key: $st
-                                      @plotPoint {
-                                        sample: @let($speeds.($st))
-                                        x: $st
-                                        y: $sample
-                                      }
-                                    }
-                                  }
-                                  top: {
-                                    gutter: '5px'
-                                  }
-                                  right: {
-                                    gutter: '10px'
-                                  }
-                                  bottom: @axis(type: time) {
-                                    gutter: '20px'
-                                    hidden: true
-                                  }
-                                  left: @axis(type: linear) {
-                                    hidden: true
-                                    gutter: '10px'
-                                  }
-                                }
-                              }
-                              @h3(class: chartTitle) {
-                                 @br {}
-                                 @br {}
-                                @text(Acceleration)
-                              }
-                              @div(class: chartContainer) {
-                                @chart {
-                                  @plot(type: line) {
-                                    lineColor: $colorAgency
-                                    lineWidth: '2px'
-                                    @each(at: $accelerations.*:) {
-                                      key: $at
-                                      @plotPoint {
-                                        sample: @let($accelerations.($at))
-                                        x: $at
-                                        y: $sample
-                                      }
-                                    }
-                                  }
-                                  top: {
-                                    gutter: '5px'
-                                  }
-                                  right: {
-                                    gutter: '10px'
-                                  }
-                                  bottom: @axis(type: time) {
-                                    gutter: '20px'
-                                    hidden: true
-                                  }
-                                  left: @axis(type: linear) {
-                                    hidden: true
-                                    gutter: '10px'
-                                  }
-                                }
-                              }
-                              # end chart
-                              #############################
+                            #############################
+                            # begin chart
+                            @h3(class: chartTitle) {
+                               @br {}
+                               @br {}
+                              @text(Speed)
                             }
-                          } # end div
-                        } #end placard
-                      } #end bus popover
-                    } # end click
-                  } #end mappoint
-                } # end layer
+                            @div(class: chartContainer) {
+                              @chart {
+                                @plotLine {
+                                  lineColor: $colorAgency
+                                  lineWidth: '2px'
+                                  @each(st: $speeds.*:) {
+                                    key: $st
+                                    @plotPoint {
+                                      sample: @let($speeds.($st))
+                                      x: $st
+                                      y: $sample
+                                    }
+                                  }
+                                }
+                                top: {
+                                  gutter: '5px'
+                                }
+                                right: {
+                                  gutter: '10px'
+                                }
+                                bottom: @axis(type: time) {
+                                  gutter: '20px'
+                                  hidden: true
+                                }
+                                left: @axis(type: linear) {
+                                  hidden: true
+                                  gutter: '10px'
+                                }
+                              }
+                            }
+                            @h3(class: chartTitle) {
+                               @br {}
+                               @br {}
+                              @text(Acceleration)
+                            }
+                            @div(class: chartContainer) {
+                              @chart {
+                                @plotLine {
+                                  lineColor: $colorAgency
+                                  lineWidth: '2px'
+                                  @each(at: $accelerations.*:) {
+                                    key: $at
+                                    @plotPoint {
+                                      sample: @let($accelerations.($at))
+                                      x: $at
+                                      y: $sample
+                                    }
+                                  }
+                                }
+                                top: {
+                                  gutter: '5px'
+                                }
+                                right: {
+                                  gutter: '10px'
+                                }
+                                bottom: @axis(type: time) {
+                                  gutter: '20px'
+                                  hidden: true
+                                }
+                                left: @axis(type: linear) {
+                                  hidden: true
+                                  gutter: '10px'
+                                }
+                              }
+                            }
+                            # end chart
+                            #############################
+                          }
+                        } # end div
+                      } #end placard
+                    } #end bus popover
+                  } # end click
+                } # end mappoint
               } # end each
             }
           }
@@ -485,7 +483,7 @@
                 titleColor: '#bfbfbf'
                 @each(agencyCount: $agencyCounts.*:) {
                   @wedge {
-                    value: @let($agencyCounts.($agencyCount))
+                    value: @let($agencyCounts.($agencyCount) + 1)
                     appLabel: $agencyCount.id
                     agencyIndex: $agencyCount.index % 8
                     primaryColor: $colorRange.($agencyIndex)
@@ -565,7 +563,7 @@
       #######################
     </script>
 
-    <script>
+<script>
       if (navigator.userAgent.indexOf("Chrome") != -1 || navigator.userAgent.indexOf("Firefox") != -1 ) {
         var e = ["%c Created by SWIM team at SWIM.AI Inc. %c @SWIM.ai %c https://developer.swim.ai", "display:block; padding:5px; background: #4171B8; color:#fff;", "display:block; padding:5px; background: #6ccbf4; color:#fff;", "display:block; padding:5px;"];
         console.info.apply(console, e)
@@ -585,7 +583,7 @@
         const dateElem = document.querySelector('.subheaderNavigation .date');
         if(timerElem && dateElem) {
           setInterval(function() {
-            date = calcTime('Los Angeles', '-7');
+            date = calcTime('Los Angeles', '-8');
             timerElem.innerText = date[1];
             dateElem.innerText = date[0];
           }, 1000);
@@ -594,5 +592,5 @@
       }, false);
 
     </script>
-  </body>
+</body>
 </html>
