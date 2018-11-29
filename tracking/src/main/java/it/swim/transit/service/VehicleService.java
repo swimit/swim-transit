@@ -43,6 +43,6 @@ public class VehicleService extends AbstractService {
 
   @Override
   public void didStart() {
-    System.out.println("Started Service: " + nodeUri().toUri());
+    //System.out.println("Started Service: " + nodeUri().toUri());
   }
 }

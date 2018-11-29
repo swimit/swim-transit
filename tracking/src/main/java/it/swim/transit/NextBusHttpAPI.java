@@ -132,9 +132,10 @@ public class NextBusHttpAPI {
           heading = "SE";
         }
 
-        final Vehicle vehicle = new Vehicle().withId(id).withDirId(dirId).withIndex(ag.getIndex()).withLatitude(latitude)
-            .withLongitude(longitude).withRouteTag(routeTag).withSecsSinceReport(secsSinceReport).withSpeed(speed)
-            .withHeading(heading);
+        final String uri = "/vehicle/" + ag.getCountry() + "/" + ag.getState() + "/" + ag.getId() + "/" + id;
+        final Vehicle vehicle = new Vehicle().withId(id).withUri(uri).withDirId(dirId).withIndex(ag.getIndex())
+            .withLatitude(latitude).withLongitude(longitude).withRouteTag(routeTag).withSecsSinceReport(secsSinceReport)
+            .withSpeed(speed).withHeading(heading);
         vehicles.add(vehicle);
       }
       return vehicles;

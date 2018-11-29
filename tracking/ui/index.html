@@ -488,7 +488,7 @@
                     appLabel: $agencyCount.id
                     agencyIndex: $agencyCount.index % 8
                     primaryColor: $colorRange.($agencyIndex)
-                    label: @text($value)
+                    label: @text($round($value))
                     labelColor: $blueLabelColor
                     tickColor: '#B7B7B7'
                     legendColor: '#989898'
@@ -512,7 +512,7 @@
                   labelColor: $blueLabelColor
                   tickColor: '#B7B7B7'
                   legendColor: '#989898'
-                  legend: @text($value)
+                  legend: @text($round($value))
                   innerRadius: 10 + 7.5 * $value / $max($value) @pct
                   outerRadius: 20 + 7.5 * $value / $max($value) @pct
                   arcColor: $colorRange.(3)

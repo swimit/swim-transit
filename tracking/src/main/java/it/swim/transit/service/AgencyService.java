@@ -5,9 +5,14 @@ import it.swim.transit.model.Route;
 import it.swim.transit.model.Routes;
 import it.swim.transit.model.Vehicle;
 import it.swim.transit.model.Vehicles;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import recon.Value;
 import swim.api.AbstractService;
 import swim.api.CommandLane;
+import swim.api.JoinMapLane;
+import swim.api.MapDownlink;
 import swim.api.MapLane;
 import swim.api.SwimLane;
 import swim.api.ValueLane;
@@ -27,16 +32,16 @@ public class AgencyService extends AbstractService {
   @SwimLane("addVehicles")
   public CommandLane<Vehicles> addVehicles = commandLane().valueClass(Vehicles.class).onCommand(v -> onVehicles(v));
 
-  private void onVehicles(Vehicles vehicles) {
-    if (vehicles == null ||vehicles.getVehicles().size() == 0) {
+  private void onVehicles(Vehicles newVehicles) {
+    if (newVehicles == null ||newVehicles.getVehicles().size() == 0) {
       return;
     }
-    this.vehicles.clear();
+    updateVehicles(newVehicles.getVehicles());
     int speedSum = 0;
-    for (Vehicle v : vehicles.getVehicles()) {
-      final String vehicleUri = vehicleUri(v.getId());
-      if (vehicleUri != null) {
-        context.command(vehicleUri(v.getId()), "addVehicle", v.toValue());
+    for (Vehicle v : newVehicles.getVehicles().values()) {
+      final String vehicleUri = v.getUri();
+      if (vehicleUri != null && !vehicleUri.equals("")) {
+        context.command(vehicleUri, "addVehicle", v.toValue());
         addVehicle(vehicleUri, v);
         speedSum += v.getSpeed();
       }
@@ -47,19 +52,19 @@ public class AgencyService extends AbstractService {
     }
   }
 
-  private void addVehicle(String vehicleUri, Vehicle v) {
-    final Route r = routes.get(v.getRouteTag());
-    if (r != null) {
-      this.vehicles.put(vehicleUri, v.withAgency(prop("id").stringValue("")).withRouteTitle(r.getTitle()));
+  private void updateVehicles(Map<String, Vehicle> newVehicles) {
+    Collection<Vehicle> currentVehicles = this.vehicles.values();
+    for(Vehicle vehicle: currentVehicles) {
+      if (!newVehicles.containsKey(vehicle.getUri())) {
+        vehicles.remove(vehicle.getUri());
+      }
     }
   }
 
-  private String vehicleUri(String id) {
-    final Agency agency = info.get();
-    if (agency != null) {
-      return "/vehicle/" + agency.getCountry() + "/" + agency.getState() + "/" + agency.getId() + "/" + id;
-    } else {
-      return null;
+  private void addVehicle(String vehicleUri, Vehicle v) {
+    final Route r = routes.get(v.getRouteTag());
+    if (r != null) {
+      vehicles.put(vehicleUri, v.withAgency(prop("id").stringValue("")).withRouteTitle(r.getTitle()));
     }
   }
 

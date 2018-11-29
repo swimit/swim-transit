@@ -14,7 +14,6 @@ import swim.api.MapDownlink;
 import swim.api.MapLane;
 import swim.api.SwimLane;
 import swim.api.ValueLane;
-import swim.util.Uri;
 
 public class StateService extends AbstractService {
 
@@ -33,8 +32,9 @@ public class StateService extends AbstractService {
 
   @SwimLane("joinAgencyVehicles")
   public JoinMapLane<Agency, String, Vehicle> joinAgencyVehicles = joinMapLane().linkClass(Agency.class).keyClass(String.class)
-      .valueClass(Vehicle.class).didUpdate(
-          (String key, Vehicle newEntry, Vehicle oldEntry) -> vehicles.put(key, newEntry));
+      .valueClass(Vehicle.class)
+      .didUpdate((key, newVehicle, oldVehicle) -> vehicles.put(key, newVehicle))
+      .didRemove((key, vehicle) -> vehicles.remove(key));
 
   @SwimLane("speed")
   public ValueLane<Float> speed = valueLane().valueClass(Float.class);
@@ -65,7 +65,7 @@ public class StateService extends AbstractService {
     int maxCount = Integer.max(count.get().get("max").intValue(0), vCounts);
     count.set(Record.EMPTY.withSlot("current", vCounts).withSlot("max", maxCount));
     agencyCount.put(agency, newCount);
-
+    System.out.println(nodeUri().toUri() + " vehicles count: " + vehicles.size());
   }
 
   public void updateSpeeds(Agency agency, float newSpeed) {
@@ -87,4 +87,5 @@ public class StateService extends AbstractService {
     agencySpeed.clear();
     System.out.println("Started Service" + nodeUri().toUri());
   }
+
 }
