@@ -6,17 +6,13 @@ import it.swim.transit.model.Routes;
 import it.swim.transit.model.Vehicle;
 import it.swim.transit.model.Vehicles;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import recon.Value;
 import swim.api.AbstractService;
 import swim.api.CommandLane;
-import swim.api.JoinMapLane;
-import swim.api.MapDownlink;
 import swim.api.MapLane;
 import swim.api.SwimLane;
 import swim.api.ValueLane;
-import swim.util.Uri;
 
 public class AgencyService extends AbstractService {
 
@@ -33,7 +29,7 @@ public class AgencyService extends AbstractService {
   public CommandLane<Vehicles> addVehicles = commandLane().valueClass(Vehicles.class).onCommand(v -> onVehicles(v));
 
   private void onVehicles(Vehicles newVehicles) {
-    if (newVehicles == null ||newVehicles.getVehicles().size() == 0) {
+    if (newVehicles == null || newVehicles.getVehicles().size() == 0) {
       return;
     }
     updateVehicles(newVehicles.getVehicles());
@@ -54,7 +50,7 @@ public class AgencyService extends AbstractService {
 
   private void updateVehicles(Map<String, Vehicle> newVehicles) {
     Collection<Vehicle> currentVehicles = this.vehicles.values();
-    for(Vehicle vehicle: currentVehicles) {
+    for (Vehicle vehicle : currentVehicles) {
       if (!newVehicles.containsKey(vehicle.getUri())) {
         vehicles.remove(vehicle.getUri());
       }

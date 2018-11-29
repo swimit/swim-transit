@@ -1,16 +1,14 @@
 package it.swim.transit.service;
 
-import java.util.Iterator;
-
 import it.swim.transit.model.Agency;
 import it.swim.transit.model.Vehicle;
+import java.util.Iterator;
 import recon.Record;
 import recon.Value;
 import swim.api.AbstractService;
 import swim.api.CommandLane;
 import swim.api.JoinMapLane;
 import swim.api.JoinValueLane;
-import swim.api.MapDownlink;
 import swim.api.MapLane;
 import swim.api.SwimLane;
 import swim.api.ValueLane;

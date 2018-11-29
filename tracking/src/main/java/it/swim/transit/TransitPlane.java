@@ -1,5 +1,10 @@
 package it.swim.transit;
 
+import it.swim.transit.model.Agency;
+import it.swim.transit.service.AgencyService;
+import it.swim.transit.service.CountryService;
+import it.swim.transit.service.StateService;
+import it.swim.transit.service.VehicleService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -8,13 +13,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
-import it.swim.transit.model.Agency;
-import it.swim.transit.service.AgencyService;
-import it.swim.transit.service.CountryService;
-import it.swim.transit.service.StateService;
-import it.swim.transit.service.VehicleService;
-import recon.Form;
 import recon.Recon;
 import recon.Value;
 import swim.api.AbstractPlane;

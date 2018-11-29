@@ -32,7 +32,7 @@ public class VehicleService extends AbstractService {
       speeds.drop(speeds.size() - 10);
     }
     if (lastReportedTime > 0) {
-      final float acceleration = (v.getSpeed() - oldSpeed) / ((time - lastReportedTime) / 3600 );
+      final float acceleration = (v.getSpeed() - oldSpeed) / ((time - lastReportedTime) / 3600);
       accelerations.put(time, Math.round(acceleration));
       if (accelerations.size() > 10) {
         accelerations.drop(accelerations.size() - 10);

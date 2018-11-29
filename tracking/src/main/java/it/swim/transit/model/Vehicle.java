@@ -1,10 +1,9 @@
 package it.swim.transit.model;
 
+import java.util.Objects;
 import recon.Form;
 import recon.ReconName;
 import recon.Value;
-
-import java.util.Objects;
 
 @ReconName("vehicle")
 public class Vehicle {
@@ -139,8 +138,12 @@ public class Vehicle {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Vehicle vehicle = (Vehicle) o;
     return Float.compare(vehicle.latitude, latitude) == 0 &&
         Float.compare(vehicle.longitude, longitude) == 0 &&
@@ -166,7 +169,7 @@ public class Vehicle {
     return "Vehicle{" +
         "id='" + id + '\'' +
         "uri='" + uri + '\'' +
-        ", agency='" + agency+ '\'' +
+        ", agency='" + agency + '\'' +
         ", routeTag='" + routeTag + '\'' +
         ", dirId='" + dirId + '\'' +
         ", latitude=" + latitude +

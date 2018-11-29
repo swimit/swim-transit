@@ -1,10 +1,9 @@
 package it.swim.transit.model;
 
+import java.util.Objects;
 import recon.Form;
 import recon.ReconName;
 import recon.Value;
-
-import java.util.Objects;
 
 @ReconName("agency")
 public class Agency {
@@ -50,8 +49,12 @@ public class Agency {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Agency agency = (Agency) o;
     return Objects.equals(id, agency.id) &&
         Objects.equals(state, agency.state) &&

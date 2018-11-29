@@ -1,8 +1,12 @@
 package it.swim.transit;
 
+import it.swim.transit.model.Agency;
+import it.swim.transit.model.Route;
+import it.swim.transit.model.Routes;
+import it.swim.transit.model.Vehicle;
+import it.swim.transit.model.Vehicles;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -11,12 +15,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import it.swim.transit.model.Agency;
-import it.swim.transit.model.Route;
-import it.swim.transit.model.Routes;
-import it.swim.transit.model.Vehicle;
-import it.swim.transit.model.Vehicles;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -41,7 +39,7 @@ public class NextBusHttpAPI {
   }
 
   public void sendRoutes(List<Agency> agencies) {
-    for (Agency agency: agencies) {
+    for (Agency agency : agencies) {
       sendRoutes(agency);
     }
   }
@@ -74,7 +72,7 @@ public class NextBusHttpAPI {
       NodeList nodes = file.getElementsByTagName("route");
       final Routes routes = new Routes();
       for (int i = 0; i < nodes.getLength(); i++) {
-        final String tag= ((Element) nodes.item(i)).getAttribute("tag").replace("\"", "");
+        final String tag = ((Element) nodes.item(i)).getAttribute("tag").replace("\"", "");
         final String title = ((Element) nodes.item(i)).getAttribute("title").replace("\"", "");
         final Route route = new Route().withTag(tag).withTitle(title);
         routes.add(route);

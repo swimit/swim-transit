@@ -1,9 +1,8 @@
 package it.swim.transit.service;
 
-import java.util.Iterator;
-
 import it.swim.transit.model.Agency;
 import it.swim.transit.model.Vehicle;
+import java.util.Iterator;
 import recon.Form;
 import recon.Record;
 import recon.Value;
@@ -36,8 +35,9 @@ public class CountryService extends AbstractService {
 
   @SwimLane("joinAgencyVehicles")
   public JoinMapLane<Value, String, Vehicle> joinAgencyVehicles = joinMapLane().keyClass(String.class)
-      .valueClass(Vehicle.class).didUpdate(
-          (String key, Vehicle newEntry, Vehicle oldEntry) -> vehicles.put(key, newEntry));
+      .valueClass(Vehicle.class)
+      .didUpdate((String key, Vehicle newEntry, Vehicle oldEntry) -> vehicles.put(key, newEntry))
+      .didRemove((key, vehicle) -> vehicles.remove(key));
 
   @SwimLane("speed")
   public ValueLane<Float> speed = valueLane().valueClass(Float.class);

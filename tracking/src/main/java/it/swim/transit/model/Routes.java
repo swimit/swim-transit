@@ -1,9 +1,8 @@
 package it.swim.transit.model;
 
-import recon.ReconName;
-
 import java.util.ArrayList;
 import java.util.List;
+import recon.ReconName;
 
 @ReconName("Routes")
 public class Routes {
